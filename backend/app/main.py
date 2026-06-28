@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.auth.router import router as auth_router
+from app.bank_accounts.router import debit_cards_router
+from app.bank_accounts.router import router as bank_accounts_router
 from app.cards.router import accounts_router as card_accounts_router
 from app.cards.router import router as cards_router
 from app.config import settings
@@ -60,6 +62,8 @@ def create_app() -> FastAPI:
     api.include_router(registry_router)
     api.include_router(cards_router)
     api.include_router(card_accounts_router)
+    api.include_router(bank_accounts_router)
+    api.include_router(debit_cards_router)
     api.include_router(statements_router)
     app.include_router(api)
 
