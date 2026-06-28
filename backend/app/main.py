@@ -16,6 +16,7 @@ from app.bank_accounts.router import router as bank_accounts_router
 from app.cards.router import accounts_router as card_accounts_router
 from app.cards.router import router as cards_router
 from app.config import settings
+from app.dashboard.router import router as dashboard_router
 from app.health.router import router as health_router
 from app.registry.router import router as registry_router
 from app.shared.config.data_loader import get_data_loader
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
     api.include_router(bank_accounts_router)
     api.include_router(debit_cards_router)
     api.include_router(statements_router)
+    api.include_router(dashboard_router)
     app.include_router(api)
 
     logger.info(

@@ -81,6 +81,12 @@ layers = ["router", "service", "repository", "models"]
 containers = ["app.bank_accounts"]
 
 [[tool.importlinter.contracts]]
+name = "Dashboard module layering (router -> service -> repository)"
+type = "layers"
+layers = ["router", "service", "repository"]
+containers = ["app.dashboard"]
+
+[[tool.importlinter.contracts]]
 name = "Shared layer never imports feature modules"
 type = "forbidden"
 source_modules = ["app.shared"]
