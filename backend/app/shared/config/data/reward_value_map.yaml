@@ -1,0 +1,27 @@
+# CardLens reward value map - estimated INR value per reward point, by program and reward type.
+# Used to convert reward points into an estimated monetary value. Tune values here; never hardcode
+# point valuations in code. Values are conservative baseline estimates and should be reviewed
+# periodically against current redemption catalogs.
+version: 1
+default_value_per_point: 0.25
+programs:
+  HDFC_REWARD_POINTS: 0.30
+  HDFC_INFINIA_POINTS: 1.00
+  ICICI_REWARD_POINTS: 0.25
+  ICICI_PAYBACK_POINTS: 0.25
+  SBI_REWARD_POINTS: 0.25
+  AXIS_EDGE_POINTS: 0.20
+  AXIS_MAGNUS_POINTS: 1.00
+  INDUSIND_REWARD_POINTS: 0.50
+  RBL_REWARD_POINTS: 0.25
+  HSBC_REWARD_POINTS: 0.25
+  KOTAK_REWARD_POINTS: 0.25
+  IDFC_REWARD_POINTS: 0.25
+  YES_REWARD_POINTS: 0.20
+  SC_REWARD_POINTS: 0.25
+  AMEX_MR_POINTS: 0.45
+reward_types:
+  CASHBACK: 1.00
+  AIRMILES: 0.50
+  REWARD_POINTS: 0.25
+  MEMBERSHIP_REWARDS: 0.45

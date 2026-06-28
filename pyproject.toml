@@ -1,0 +1,63 @@
+[project]
+name = "cardlens-backend"
+version = "0.1.0"
+description = "CardLens backend - credit-card and bank-account intelligence API"
+requires-python = ">=3.11"
+# Runtime dependencies are the single source of truth in requirements.txt.
+# Dev/quality tooling lives in requirements-dev.txt. This file holds tool config only.
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["backend"]
+extend-exclude = ["backend/migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "S", "C4", "SIM", "RUF"]
+# B008: FastAPI uses Depends()/Query() as default arguments by design.
+# S104: binding to 0.0.0.0 is intentional for containerized deployment (config default only).
+ignore = ["B008", "S104"]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/tests/**" = ["S101", "S105", "S106"]
+"backend/migrations/**" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_redundant_casts = true
+warn_unused_ignores = false
+disallow_untyped_defs = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+mypy_path = "backend"
+explicit_package_bases = true
+exclude = ["backend/migrations/"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+asyncio_mode = "auto"
+pythonpath = ["backend"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["backend/app"]
+omit = ["backend/app/main.py", "*/migrations/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+[tool.importlinter]
+root_package = "app"
+
+[[tool.importlinter.contracts]]
+name = "Users module layering (router -> service -> repository -> models)"
+type = "layers"
+layers = ["router", "service", "repository", "models"]
+containers = ["app.users"]
+
+[[tool.importlinter.contracts]]
+name = "Shared layer never imports feature modules"
+type = "forbidden"
+source_modules = ["app.shared"]
+forbidden_modules = ["app.auth", "app.users"]
