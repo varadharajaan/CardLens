@@ -1,0 +1,33 @@
+# HDFC credit-card statement parser profile, version 1.
+# A new real-world layout = a NEW versioned file (v2.yaml), never an edit to this one. The engine
+# selects the highest-version profile whose fingerprint keywords all appear in the statement text.
+# Each field rule is a regex with a named group "value"; "type" coerces it (text|money|int|date).
+bank: HDFC
+version: 1
+reward_type: REWARD_POINTS
+fingerprint:
+  - "HDFC Bank"
+fields:
+  card_name:
+    pattern: "Product[:\\s]*(?P<value>[A-Za-z][A-Za-z ]+)"
+  last4:
+    pattern: "Card\\s*Number[:\\s]*[X*x]+(?P<value>\\d{4})"
+  statement_date:
+    pattern: "Statement\\s*Date[:\\s]*(?P<value>\\d{2}[-/]\\d{2}[-/]\\d{2,4})"
+    type: date
+  due_date:
+    pattern: "Payment\\s*Due\\s*Date[:\\s]*(?P<value>\\d{2}[-/]\\d{2}[-/]\\d{2,4})"
+    type: date
+  total_due:
+    pattern: "Total\\s*Amount\\s*Due[:\\s]*(?:INR|Rs\\.?)?\\s*(?P<value>[\\d,]+\\.?\\d*)"
+    type: money
+  minimum_due:
+    pattern: "Minimum\\s*Amount\\s*Due[:\\s]*(?:INR|Rs\\.?)?\\s*(?P<value>[\\d,]+\\.?\\d*)"
+    type: money
+reward:
+  points_credited:
+    pattern: "Reward\\s*Points\\s*Earned[:\\s]*(?P<value>[\\d,]+)"
+    type: int
+  points_closing:
+    pattern: "Closing\\s*Reward\\s*Points[:\\s]*(?P<value>[\\d,]+)"
+    type: int

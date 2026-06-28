@@ -1,0 +1,25 @@
+# ICICI credit-card statement parser profile, version 1. See hdfc/v1.yaml for the schema contract.
+bank: ICICI
+version: 1
+reward_type: REWARD_POINTS
+fingerprint:
+  - "ICICI Bank"
+fields:
+  last4:
+    pattern: "Card\\s*No[:\\s.]*[X*x]+(?P<value>\\d{4})"
+  statement_date:
+    pattern: "Statement\\s*Date[:\\s]*(?P<value>\\d{2}[-/]\\d{2}[-/]\\d{2,4})"
+    type: date
+  due_date:
+    pattern: "Due\\s*Date[:\\s]*(?P<value>\\d{2}[-/]\\d{2}[-/]\\d{2,4})"
+    type: date
+  total_due:
+    pattern: "Total\\s*Amount\\s*due[:\\s]*(?:INR|Rs\\.?)?\\s*(?P<value>[\\d,]+\\.?\\d*)"
+    type: money
+  minimum_due:
+    pattern: "Minimum\\s*Amount\\s*due[:\\s]*(?:INR|Rs\\.?)?\\s*(?P<value>[\\d,]+\\.?\\d*)"
+    type: money
+reward:
+  points_closing:
+    pattern: "Total\\s*PAYBACK\\s*Points[:\\s]*(?P<value>[\\d,]+)"
+    type: int
