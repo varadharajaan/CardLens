@@ -1,0 +1,36 @@
+{
+  "schema_version": "1",
+  "key": "axis-magnus",
+  "bank": "AXIS",
+  "card_name": "Axis Bank Magnus Credit Card",
+  "network": "MASTERCARD",
+  "version": 1,
+  "source_confidence": 0.8,
+  "last_verified_at": "2026-01-15",
+  "official_links": [
+    "https://www.axisbank.com/retail/cards/credit-card/magnus-credit-card"
+  ],
+  "community_links": ["https://www.technofino.in/"],
+  "features": {
+    "annual_fee": 12500,
+    "joining_fee": 12500,
+    "annual_fee_waiver_spend": null,
+    "reward_type": "REWARD_POINTS",
+    "base_reward_rate": 12.0,
+    "reward_value_per_point": 1.0,
+    "rewards": [
+      { "category": "other_spends", "rate": 12.0, "unit": "points_per_200", "cap": null },
+      { "category": "travel_edge", "rate": 60.0, "unit": "points_per_200", "cap": null, "notes": "5x on Travel Edge" }
+    ],
+    "milestones": [
+      { "name": "Monthly 1L spend bonus", "target_spend": 100000, "reward": "25000 points", "period": "monthly" }
+    ],
+    "reward_caps": [],
+    "exclusions": ["rent", "wallet", "fuel", "government", "insurance"],
+    "lounge_access": { "domestic": "unlimited", "international": "unlimited" },
+    "forex_markup_percent": 2.0,
+    "fuel_surcharge_waiver": { "percent": 1.0, "max_per_statement": null },
+    "benefits": ["Airport transfers", "Unlimited lounge", "Tata CLiQ vouchers"],
+    "redemption": { "mode": "travel_edge", "value_per_point": 1.0 }
+  }
+}
