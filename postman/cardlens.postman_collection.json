@@ -747,6 +747,51 @@
       ]
     },
     {
+      "name": "Parser",
+      "item": [
+        {
+          "name": "Preview HDFC Statement",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"HDFC\",\n  \"text\": \"HDFC Bank Credit Card Statement\\nProduct: HDFC Infinia\\nCard Number: XXXXXXXXXXXX1234\\nStatement Date: 02-06-2026\\nPayment Due Date: 22-06-2026\\nTotal Amount Due: INR 25,000.00\\nMinimum Amount Due: INR 1,250.00\\nReward Points Earned: 1,200\\nClosing Reward Points: 48,000\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/parsers/preview", "host": ["{{base_url}}"], "path": ["api", "v1", "parsers", "preview"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('bank HDFC', function () { pm.expect(b.bank).to.eql('HDFC'); });",
+            "pm.test('reward found', function () { pm.expect(b.reward_parse_status).to.eql('FOUND'); });",
+            "pm.test('total due parsed', function () { pm.expect(b.total_due).to.eql(25000); });",
+            "pm.test('closing points parsed', function () { pm.expect(b.reward_points_closing).to.eql(48000); });"
+          ] } } ]
+        },
+        {
+          "name": "Preview Unknown Layout (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Some Random Bank Statement\\nTotal Due: 100\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/parsers/preview", "host": ["{{base_url}}"], "path": ["api", "v1", "parsers", "preview"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 422', function () { pm.response.to.have.status(422); });",
+            "pm.test('errorCode', function () { pm.expect(pm.response.json().errorCode).to.eql('VALIDATION_FAILED'); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
       "name": "Error Scenarios",
       "item": [
         {
