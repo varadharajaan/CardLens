@@ -87,6 +87,12 @@ layers = ["router", "service", "repository"]
 containers = ["app.dashboard"]
 
 [[tool.importlinter.contracts]]
+name = "Parsers module layering (router -> service -> engine -> profiles)"
+type = "layers"
+layers = ["router", "service", "engine", "profiles"]
+containers = ["app.parsers"]
+
+[[tool.importlinter.contracts]]
 name = "Shared layer never imports feature modules"
 type = "forbidden"
 source_modules = ["app.shared"]

@@ -78,6 +78,8 @@ Per PART 26.6: token vars are declared (empty) in all three env files; the boots
 | Dashboard       | Rewards Summary                      | 200, totals plus per-format breakdown                 |
 | Dashboard       | Milestones                           | 200, progress toward configured thresholds            |
 | Dashboard       | Anomalies                            | 200, rule-based anomaly list                          |
+| Parser          | Preview HDFC Statement               | 200, bank HDFC, reward FOUND, fields extracted        |
+| Parser          | Preview Unknown Layout (422)         | 422, errorCode=VALIDATION_FAILED (no profile match)   |
 | Error Scenarios | Get Me - no token (401)              | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Me - tampered token (401)        | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Card - unknown key (404)         | 404, errorCode=NOT_FOUND                              |
