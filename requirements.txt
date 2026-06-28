@@ -1,0 +1,57 @@
+# CardLens backend runtime dependencies.
+# Pinned with compatible-release (~=) lower bounds. Freeze exact versions with:
+#   uv pip freeze > requirements.lock.txt
+# Centralized manifest: do not add ad-hoc installs outside this file.
+
+# --- Web framework / ASGI ---
+fastapi~=0.115
+uvicorn[standard]~=0.34
+python-multipart~=0.0.12
+starlette~=0.41
+
+# --- Data / validation / settings ---
+pydantic~=2.9
+pydantic-settings~=2.6
+email-validator~=2.2
+
+# --- Persistence ---
+SQLAlchemy~=2.0
+alembic~=1.13
+psycopg[binary]~=3.2
+
+# --- Security ---
+PyJWT~=2.9
+argon2-cffi~=23.1
+cryptography~=43.0
+
+# --- Logging / observability ---
+structlog~=24.4
+
+# --- Config / schema ---
+PyYAML~=6.0
+jsonschema~=4.23
+
+# --- PDF processing ---
+pypdf~=5.1
+pdfplumber~=0.11
+
+# --- Scheduling ---
+APScheduler~=3.10
+
+# --- HTTP client / resilience ---
+httpx~=0.27
+tenacity~=9.0
+
+# --- Date utilities ---
+python-dateutil~=2.9
+
+# --- Gmail / Google OAuth ---
+google-auth~=2.35
+google-auth-oauthlib~=1.2
+google-api-python-client~=2.149
+
+# --- Azure (abstracted; mock used when credentials absent) ---
+azure-identity~=1.19
+azure-storage-blob~=12.23
+azure-keyvault-secrets~=4.9
+azure-ai-documentintelligence~=1.0.0b4

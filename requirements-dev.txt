@@ -1,0 +1,23 @@
+# CardLens backend development and quality-gate dependencies.
+# Install after requirements.txt:  uv pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# --- Testing ---
+pytest~=8.3
+pytest-asyncio~=0.24
+pytest-cov~=6.0
+coverage~=7.6
+freezegun~=1.5
+
+# --- Lint / format / types ---
+ruff~=0.7
+mypy~=1.13
+
+# --- Architecture / boundary enforcement (ArchUnit equivalent) ---
+import-linter~=2.1
+
+# --- Type stubs ---
+types-PyYAML~=6.0
+types-python-dateutil~=2.9
+types-jsonschema~=4.23
