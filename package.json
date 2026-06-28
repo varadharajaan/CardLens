@@ -1,0 +1,12 @@
+{
+  "name": "cardlens-tooling",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Repo-level tooling for CardLens. Holds the Newman runner used by the local API contract gate. This is NOT the web app (the Next.js app lives under apps/web with its own package.json).",
+  "scripts": {
+    "newman": "newman run postman/cardlens.postman_collection.json -e postman/cardlens.postman_environment_local.json --reporters cli --bail"
+  },
+  "devDependencies": {
+    "newman": "^5.3.2"
+  }
+}
