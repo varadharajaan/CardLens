@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cardlens.app/schema/v1/card-feature.schema.json",
+  "title": "CardLens Card Feature Registry Entry (v1)",
+  "description": "Versioned contract for a single card's features. Additive optional fields are allowed within schema major v1; breaking changes introduce a new schema directory (v2). Older entries keep validating against the schema version they declare.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "key",
+    "bank",
+    "card_name",
+    "network",
+    "version",
+    "source_confidence",
+    "last_verified_at",
+    "features"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Schema contract version this entry was authored against.",
+      "type": "string",
+      "const": "1"
+    },
+    "key": {
+      "description": "Stable unique identifier, kebab-case, typically bank-card.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "bank": {
+      "description": "Bank code matching an entry in banks.yaml.",
+      "type": "string",
+      "minLength": 2
+    },
+    "card_name": { "type": "string", "minLength": 1 },
+    "network": {
+      "type": "string",
+      "enum": ["VISA", "MASTERCARD", "RUPAY", "AMEX", "DINERS"]
+    },
+    "version": {
+      "description": "Entry content version; bump on any change to this card's data.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "source_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "last_verified_at": { "type": "string", "format": "date" },
+    "official_links": { "type": "array", "items": { "type": "string" } },
+    "community_links": { "type": "array", "items": { "type": "string" } },
+    "features": {
+      "type": "object",
+      "description": "Card feature bundle. Unknown optional keys are tolerated for forward compatibility.",
+      "additionalProperties": true,
+      "properties": {
+        "annual_fee": { "type": "number", "minimum": 0 },
+        "joining_fee": { "type": "number", "minimum": 0 },
+        "annual_fee_waiver_spend": { "type": ["number", "null"], "minimum": 0 },
+        "reward_type": { "type": "string" },
+        "base_reward_rate": { "type": "number", "minimum": 0 },
+        "reward_value_per_point": { "type": "number", "minimum": 0 },
+        "rewards": { "type": "array", "items": { "$ref": "#/$defs/rewardRule" } },
+        "milestones": { "type": "array", "items": { "$ref": "#/$defs/milestone" } },
+        "reward_caps": { "type": "array", "items": { "type": "object" } },
+        "exclusions": { "type": "array", "items": { "type": "string" } },
+        "lounge_access": { "type": "object" },
+        "forex_markup_percent": { "type": "number", "minimum": 0 },
+        "fuel_surcharge_waiver": { "type": "object" },
+        "benefits": { "type": "array", "items": { "type": "string" } },
+        "redemption": { "type": "object" }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "rewardRule": {
+      "type": "object",
+      "required": ["category", "rate"],
+      "properties": {
+        "category": { "type": "string" },
+        "rate": { "type": "number", "minimum": 0 },
+        "unit": { "type": "string" },
+        "cap": { "type": ["number", "null"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "milestone": {
+      "type": "object",
+      "required": ["name", "target_spend", "reward"],
+      "properties": {
+        "name": { "type": "string" },
+        "target_spend": { "type": "number", "minimum": 0 },
+        "reward": { "type": "string" },
+        "period": { "type": "string" }
+      }
+    }
+  }
+}
