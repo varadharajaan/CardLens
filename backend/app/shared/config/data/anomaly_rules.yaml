@@ -1,0 +1,10 @@
+# Thresholds for dashboard anomaly detection. Every value is externalized so tuning is a data edit.
+rules:
+  # Flag a statement whose due date falls within this many days and still has an outstanding total due.
+  due_soon_days: 5
+  # Flag a billing group whose total due exceeds this percent of its account credit limit.
+  high_utilization_pct: 80
+  # Flag when a reward closing balance falls by at least this many points versus the prior statement.
+  reward_drop_points: 1000
+  # Flag an unusually large total due (INR).
+  large_due_amount: 100000
