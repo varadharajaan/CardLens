@@ -1,0 +1,584 @@
+{
+  "info": {
+    "name": "CardLens API",
+    "description": "Executable contract for the CardLens API. Auth folder runs first and chains tokens into environment variables; later folders depend on them. Run with --bail. Covers happy paths plus the mandatory negative paths (401 no-token, 401 tampered, 404 NOT_FOUND, 422 VALIDATION_FAILED, single-use refresh replay).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.environment.set('request_id', pm.variables.replaceIn('{{$guid}}'));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('correlation id echoed in response', function () {",
+          "  pm.expect(pm.response.headers.has('X-Request-Id')).to.be.true;",
+          "});",
+          "pm.test('response under 3000ms', function () {",
+          "  pm.expect(pm.response.responseTime).to.be.below(3000);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Liveness (healthz)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "url": { "raw": "{{base_url}}/healthz", "host": ["{{base_url}}"], "path": ["healthz"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('status ok', function () { pm.expect(b.status).to.eql('ok'); });",
+                  "pm.test('version present', function () { pm.expect(b.version).to.be.a('string'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Readiness (readyz)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "url": { "raw": "{{base_url}}/readyz", "host": ["{{base_url}}"], "path": ["readyz"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('ready', function () { pm.expect(b.status).to.eql('ready'); });",
+                  "pm.test('database up', function () { pm.expect(b.database).to.eql('up'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"full_name\": \"QA Verify\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/auth/register", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "register"] }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var g = pm.variables.replaceIn('{{$guid}}');",
+                  "pm.environment.set('user_email', 'cl_' + g + '@example.com');",
+                  "if (!pm.environment.get('user_password')) { pm.environment.set('user_password', 'Sup3rSecret!'); }",
+                  "pm.environment.set('reg_key', 'qa-' + g);",
+                  "pm.environment.set('reg_card_name', 'QA Verify Card ' + g);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+                  "var b = pm.response.json();",
+                  "pm.test('token_type bearer', function () { pm.expect(b.token_type).to.eql('bearer'); });",
+                  "pm.test('access token issued', function () { pm.expect(b.access_token).to.be.a('string'); pm.expect(b.access_token.length).to.be.above(10); });",
+                  "pm.test('refresh token issued', function () { pm.expect(b.refresh_token).to.be.a('string'); pm.expect(b.refresh_token.length).to.be.above(10); });",
+                  "pm.test('user email matches', function () { pm.expect(b.user.email).to.eql(pm.environment.get('user_email')); });",
+                  "pm.environment.set('access_token', b.access_token);",
+                  "pm.environment.set('refresh_token', b.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('access token issued', function () { pm.expect(b.access_token).to.be.a('string'); pm.expect(b.access_token.length).to.be.above(10); });",
+                  "pm.environment.set('access_token', b.access_token);",
+                  "pm.environment.set('refresh_token', b.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/auth/refresh", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "refresh"] }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set('consumed_refresh_token', pm.environment.get('refresh_token'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('rotated access token', function () { pm.expect(b.access_token).to.be.a('string'); pm.expect(b.access_token.length).to.be.above(10); });",
+                  "pm.environment.set('access_token', b.access_token);",
+                  "pm.environment.set('refresh_token', b.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/auth/logout", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "logout"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/users/me", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('email matches', function () { pm.expect(b.email).to.eql(pm.environment.get('user_email')); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Registry",
+      "item": [
+        {
+          "name": "Upsert Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schema_version\": \"1\",\n  \"key\": \"{{reg_key}}\",\n  \"bank\": \"HDFC\",\n  \"card_name\": \"{{reg_card_name}}\",\n  \"network\": \"VISA\",\n  \"version\": 1,\n  \"source_confidence\": 0.5,\n  \"last_verified_at\": \"2026-01-01\",\n  \"features\": { \"annual_fee\": 1000 }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+                  "var b = pm.response.json();",
+                  "pm.test('key matches', function () { pm.expect(b.key).to.eql(pm.environment.get('reg_key')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Cards",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards?page=1&size=20", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards"], "query": [ { "key": "page", "value": "1" }, { "key": "size", "value": "20" } ] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('items is array', function () { pm.expect(b.items).to.be.an('array'); });",
+                  "pm.test('total at least 1', function () { pm.expect(b.total).to.be.at.least(1); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Card By Key",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards/{{reg_key}}", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards", "{{reg_key}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('bank HDFC', function () { pm.expect(b.bank).to.eql('HDFC'); });",
+                  "pm.test('key matches', function () { pm.expect(b.key).to.eql(pm.environment.get('reg_key')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Match Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bank\": \"HDFC\",\n  \"card_name\": \"{{reg_card_name}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards/match", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards", "match"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+                  "var b = pm.response.json();",
+                  "pm.test('matched true', function () { pm.expect(b.matched).to.be.true; });",
+                  "pm.test('matched our key', function () { pm.expect(b.key).to.eql(pm.environment.get('reg_key')); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Get Me - no token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/users/me", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('errorCode UNAUTHENTICATED', function () { pm.expect(pm.response.json().errorCode).to.eql('UNAUTHENTICATED'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Me - tampered token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer not.a.valid.jwt" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/users/me", "host": ["{{base_url}}"], "path": ["api", "v1", "users", "me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('errorCode UNAUTHENTICATED', function () { pm.expect(pm.response.json().errorCode).to.eql('UNAUTHENTICATED'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Card - unknown key (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards/does-not-exist-{{request_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards", "does-not-exist-{{request_id}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('errorCode NOT_FOUND', function () { pm.expect(pm.response.json().errorCode).to.eql('NOT_FOUND'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register - invalid input (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"short\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/auth/register", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "register"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });",
+                  "var b = pm.response.json();",
+                  "pm.test('errorCode VALIDATION_FAILED', function () { pm.expect(b.errorCode).to.eql('VALIDATION_FAILED'); });",
+                  "pm.test('violations array', function () { pm.expect(b.violations).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upsert Card - no token (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schema_version\": \"1\",\n  \"key\": \"qa-noauth-{{request_id}}\",\n  \"bank\": \"HDFC\",\n  \"card_name\": \"No Auth Card\",\n  \"network\": \"VISA\",\n  \"version\": 1,\n  \"source_confidence\": 0.5,\n  \"last_verified_at\": \"2026-01-01\",\n  \"features\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('errorCode UNAUTHENTICATED', function () { pm.expect(pm.response.json().errorCode).to.eql('UNAUTHENTICATED'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upsert Card - bad network (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schema_version\": \"1\",\n  \"key\": \"qa-badnet-{{request_id}}\",\n  \"bank\": \"HDFC\",\n  \"card_name\": \"Bad Network Card\",\n  \"network\": \"BITCOIN\",\n  \"version\": 1,\n  \"source_confidence\": 0.5,\n  \"last_verified_at\": \"2026-01-01\",\n  \"features\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/registry/cards", "host": ["{{base_url}}"], "path": ["api", "v1", "registry", "cards"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 422', function () { pm.response.to.have.status(422); });",
+                  "pm.test('errorCode VALIDATION_FAILED', function () { pm.expect(pm.response.json().errorCode).to.eql('VALIDATION_FAILED'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh - replay consumed token (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{consumed_refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/v1/auth/refresh", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "refresh"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('errorCode UNAUTHENTICATED', function () { pm.expect(pm.response.json().errorCode).to.eql('UNAUTHENTICATED'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
