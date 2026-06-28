@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0b0f1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1100px 560px at 82% -12%, rgba(99, 102, 241, 0.2), transparent),
+    radial-gradient(900px 500px at 0% 0%, rgba(168, 85, 247, 0.12), transparent),
+    var(--bg);
+  color: #e6e9f2;
+  min-height: 100vh;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-panel/90 p-5 backdrop-blur;
+  }
+  .stat-card {
+    @apply card flex flex-col gap-1;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs font-medium;
+  }
+  .nav-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-white/5 hover:text-ink;
+  }
+  .nav-link-active {
+    @apply bg-brand/15 text-ink shadow-glow;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-panel2 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/30;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand to-brand-2 bg-clip-text text-transparent;
+  }
+}
