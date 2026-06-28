@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.auth.router import router as auth_router
+from app.cards.router import accounts_router as card_accounts_router
+from app.cards.router import router as cards_router
 from app.config import settings
 from app.health.router import router as health_router
 from app.registry.router import router as registry_router
@@ -20,6 +22,7 @@ from app.shared.errors.handlers import register_exception_handlers
 from app.shared.logging.context import get_logger
 from app.shared.logging.middleware import RequestContextMiddleware
 from app.shared.logging.setup import configure_logging
+from app.statements.router import router as statements_router
 from app.users.router import router as users_router
 
 
@@ -55,6 +58,9 @@ def create_app() -> FastAPI:
     api.include_router(auth_router)
     api.include_router(users_router)
     api.include_router(registry_router)
+    api.include_router(cards_router)
+    api.include_router(card_accounts_router)
+    api.include_router(statements_router)
     app.include_router(api)
 
     logger.info(
