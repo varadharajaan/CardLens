@@ -36,6 +36,8 @@ class ApiPaths:
     STATEMENTS = "/statements"
     CARDS = "/cards"
     CARD_ACCOUNTS = "/card-accounts"
+    BANK_ACCOUNTS = "/bank-accounts"
+    DEBIT_CARDS = "/debit-cards"
     REWARDS_SUMMARY = "/rewards/summary"
     MILESTONES = "/milestones"
     ANOMALIES = "/anomalies"
