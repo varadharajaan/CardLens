@@ -14,14 +14,46 @@ optimizing, and alerting.
 
 ## 2. Architecture
 
-Modular monolith. One FastAPI backend with strict module boundaries (router -> service ->
-repository), one Next.js web client, a versioned JSON card registry, Azure as the target cloud.
-See docs/architecture/overview.md.
+CardLens is a modular monolith (one FastAPI backend, strict `router -> service -> repository`
+boundaries) plus a decoupled, event-driven ingestion pipeline and a Next.js web client. The same
+code runs locally and in Azure - only the adapter configuration changes (Local Environment Parity).
 
-```
-[web (Next.js)] -> [FastAPI api] -> [services] -> [repositories] -> [Postgres]
-                                  -> [gmail ingest] -> [pdf unlock] -> [parsers] -> [reward/anomaly]
-```
+What makes the design hold up under real data:
+
+- Ingestion is split into two independent workflows joined only by Blob storage and a blob-created
+  event, so the mailbox reader and the PDF processor scale and fail independently.
+- Ports and adapters (`StoragePort`, `QueuePort`, `DocIntelPort`) are selected by config: Azurite +
+  a local worker in dev; Azure Blob + Event Grid + Service Bus + a Container Apps worker in prod.
+  Switch local to real Azure with one env var, no code change.
+- Companion/variant cards are modelled as a `CardAccount` billing aggregate that owns multiple
+  network variants (Visa/Mastercard/RuPay/Amex) sharing one statement and one due (pay one, both
+  clear), each variant with its own features and reward format. Debit cards hang off a `BankAccount`
+  the same way.
+- Parser profiles are versioned and config-driven: a new real-world statement layout is a new
+  profile version (data), not a code change; low-confidence parses go to a manual-review queue.
+- Reward extraction is mandatory and never silently skipped.
+
+### Containers
+
+![CardLens system architecture - containers](docs/architecture/architecture.svg)
+
+### Ingestion: two decoupled workflows (same design local and prod)
+
+![CardLens ingestion - two decoupled workflows](docs/architecture/ingestion-flow.svg)
+
+| Concern | Local (no cloud) | Prod (Azure) |
+|---|---|---|
+| Object store | Azurite Blob | Azure Blob |
+| Queue | Azurite Queue | Service Bus |
+| Blob to queue bridge | helper script / poller | Event Grid BlobCreated |
+| Worker | local process | Container Apps (scale-to-zero) |
+| Document Intelligence | shared Azure resource | shared Azure resource |
+| Auth to storage | dev connection string | Managed Identity |
+| Secrets | .env | Key Vault |
+
+Detailed module boundaries, data flows, and the domain model: see
+[docs/architecture/overview.md](docs/architecture/overview.md) and
+[docs/architecture/architecture.svg](docs/architecture/architecture.svg).
 
 ## 3. Tech Stack
 
