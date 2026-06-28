@@ -22,6 +22,8 @@ _logger = get_logger("cardlens.config")
 _BANKS_FILE = "banks.yaml"
 _PASSWORD_RULES_FILE = "pdf_password_rules.yaml"  # noqa: S105 - filename, not a secret
 _REWARD_VALUE_FILE = "reward_value_map.yaml"
+_REWARD_MILESTONES_FILE = "reward_milestones.yaml"
+_ANOMALY_RULES_FILE = "anomaly_rules.yaml"
 
 
 class BankConfig(BaseModel):
@@ -43,6 +45,23 @@ class PasswordRule(BaseModel):
     example: str = ""
 
 
+class MilestoneRule(BaseModel):
+    """A reward milestone threshold sourced from ``reward_milestones.yaml``."""
+
+    key: str
+    label: str
+    threshold: float
+
+
+class AnomalyRules(BaseModel):
+    """Tunable thresholds for dashboard anomaly detection from ``anomaly_rules.yaml``."""
+
+    due_soon_days: int = 5
+    high_utilization_pct: float = 80.0
+    reward_drop_points: int = 1000
+    large_due_amount: float = 100000.0
+
+
 class DataLoader:
     """Loads, validates, and caches externalized config data with typed accessors."""
 
@@ -51,6 +70,8 @@ class DataLoader:
         self._banks: list[BankConfig] | None = None
         self._password_rules: dict[str, list[PasswordRule]] | None = None
         self._reward_values: dict[str, Any] | None = None
+        self._reward_milestones: dict[str, list[MilestoneRule]] | None = None
+        self._anomaly_rules: AnomalyRules | None = None
 
     def _read_yaml(self, filename: str) -> dict[str, Any]:
         path = self._dir / filename
@@ -121,6 +142,23 @@ class DataLoader:
             return float(reward_types[reward_type])
         return default
 
+    def reward_milestones(self) -> dict[str, list[MilestoneRule]]:
+        """Return reward milestone thresholds grouped by reward format (ascending per format)."""
+        if self._reward_milestones is None:
+            raw = self._read_yaml(_REWARD_MILESTONES_FILE)
+            self._reward_milestones = {
+                fmt: [MilestoneRule(**item) for item in items]
+                for fmt, items in raw.get("milestones", {}).items()
+            }
+        return self._reward_milestones
+
+    def anomaly_rules(self) -> AnomalyRules:
+        """Return the externalized anomaly-detection thresholds."""
+        if self._anomaly_rules is None:
+            raw = self._read_yaml(_ANOMALY_RULES_FILE)
+            self._anomaly_rules = AnomalyRules(**raw.get("rules", {}))
+        return self._anomaly_rules
+
     def validate_all(self) -> None:
         """Eagerly load and validate every data file so misconfiguration fails fast at startup."""
         bank_count = len(self.banks())
@@ -130,6 +168,8 @@ class DataLoader:
             for bank in self.banks():
                 self.password_rules(bank.code)
         self._reward_value_data()
+        self.reward_milestones()
+        self.anomaly_rules()
         _logger.info("config_data.loaded", banks=bank_count, config_dir=str(self._dir))
 
 

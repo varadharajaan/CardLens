@@ -12,6 +12,7 @@ class StatementCreate(BaseModel):
     """Input to record a parsed statement (used by seeding and the ingestion pipeline)."""
 
     card_id: UUID | None = None
+    account_id: UUID | None = None
     bank: str = Field(min_length=2, max_length=40)
     card_name: str = Field(min_length=1, max_length=200)
     last4: str = Field(min_length=4, max_length=4, pattern=r"^[0-9]{4}$")
@@ -43,6 +44,7 @@ class StatementRead(BaseModel):
 
     id: UUID
     card_id: UUID | None
+    account_id: UUID | None
     bank: str
     card_name: str
     last4: str

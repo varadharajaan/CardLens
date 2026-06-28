@@ -686,6 +686,67 @@
       ]
     },
     {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Overview",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/dashboard/overview", "host": ["{{base_url}}"], "path": ["api", "v1", "dashboard", "overview"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('counts present', function () { pm.expect(b.counts.cards).to.be.at.least(1); });",
+            "pm.test('billing groups', function () { pm.expect(b.billing_groups).to.be.at.least(1); });",
+            "pm.test('reward points aggregated', function () { pm.expect(b.total_reward_points).to.be.at.least(48000); });",
+            "pm.test('currency INR', function () { pm.expect(b.currency).to.eql('INR'); });"
+          ] } } ]
+        },
+        {
+          "name": "Rewards Summary",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/rewards/summary", "host": ["{{base_url}}"], "path": ["api", "v1", "rewards", "summary"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('total points', function () { pm.expect(b.total_reward_points).to.be.at.least(48000); });",
+            "pm.test('by format array', function () { pm.expect(b.by_format).to.be.an('array'); });"
+          ] } } ]
+        },
+        {
+          "name": "Milestones",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/milestones", "host": ["{{base_url}}"], "path": ["api", "v1", "milestones"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('milestone items', function () { pm.expect(b.items.length).to.be.at.least(1); });",
+            "pm.test('rp_10k present', function () { pm.expect(b.items.map(function (m) { return m.key; })).to.include('rp_10k'); });"
+          ] } } ]
+        },
+        {
+          "name": "Anomalies",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/anomalies", "host": ["{{base_url}}"], "path": ["api", "v1", "anomalies"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('anomaly items array', function () { pm.expect(pm.response.json().items).to.be.an('array'); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
       "name": "Error Scenarios",
       "item": [
         {
