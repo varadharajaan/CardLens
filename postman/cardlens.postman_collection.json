@@ -577,6 +577,115 @@
       ]
     },
     {
+      "name": "Bank Accounts",
+      "item": [
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"SBI\",\n  \"account_type\": \"SAVINGS\",\n  \"display_name\": \"SBI Savings\",\n  \"last4\": \"7788\",\n  \"balance\": 125000.5\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/bank-accounts", "host": ["{{base_url}}"], "path": ["api", "v1", "bank-accounts"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "var b = pm.response.json();",
+            "pm.test('display name', function () { pm.expect(b.display_name).to.eql('SBI Savings'); });",
+            "pm.test('account type', function () { pm.expect(b.account_type).to.eql('SAVINGS'); });",
+            "pm.environment.set('bank_account_id', b.id);"
+          ] } } ]
+        },
+        {
+          "name": "Add Debit Card - Visa (primary)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank_account_id\": \"{{bank_account_id}}\",\n  \"card_name\": \"SBI Visa Debit\",\n  \"last4\": \"7788\",\n  \"network\": \"VISA\",\n  \"is_primary\": true,\n  \"reward_format\": \"REWARD_POINTS\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/debit-cards", "host": ["{{base_url}}"], "path": ["api", "v1", "debit-cards"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "pm.test('is primary', function () { pm.expect(pm.response.json().is_primary).to.eql(true); });"
+          ] } } ]
+        },
+        {
+          "name": "Add Debit Card - RuPay",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank_account_id\": \"{{bank_account_id}}\",\n  \"card_name\": \"SBI RuPay Debit\",\n  \"last4\": \"5566\",\n  \"network\": \"RUPAY\",\n  \"reward_format\": \"CASHBACK\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/debit-cards", "host": ["{{base_url}}"], "path": ["api", "v1", "debit-cards"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });"
+          ] } } ]
+        },
+        {
+          "name": "Get Account With Debit Cards",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/bank-accounts/{{bank_account_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "bank-accounts", "{{bank_account_id}}"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('account display name', function () { pm.expect(b.account.display_name).to.eql('SBI Savings'); });",
+            "pm.test('two debit cards', function () { pm.expect(b.debit_cards.length).to.eql(2); });",
+            "pm.test('primary debit card first', function () { pm.expect(b.debit_cards[0].is_primary).to.eql(true); });"
+          ] } } ]
+        },
+        {
+          "name": "List Accounts",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/bank-accounts?page=1&size=20", "host": ["{{base_url}}"], "path": ["api", "v1", "bank-accounts"], "query": [ { "key": "page", "value": "1" }, { "key": "size", "value": "20" } ] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('items array', function () { pm.expect(b.items).to.be.an('array'); });",
+            "pm.test('total at least 1', function () { pm.expect(b.total).to.be.at.least(1); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
+      "name": "Debit Cards",
+      "item": [
+        {
+          "name": "List Debit Cards",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/debit-cards?page=1&size=20", "host": ["{{base_url}}"], "path": ["api", "v1", "debit-cards"], "query": [ { "key": "page", "value": "1" }, { "key": "size", "value": "20" } ] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('items array', function () { pm.expect(b.items).to.be.an('array'); });",
+            "pm.test('total at least 2', function () { pm.expect(b.total).to.be.at.least(2); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
       "name": "Error Scenarios",
       "item": [
         {

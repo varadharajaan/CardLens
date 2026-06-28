@@ -68,6 +68,12 @@ Per PART 26.6: token vars are declared (empty) in all three env files; the boots
 | Statements      | Record Statement                     | 201, reward_parse_status FOUND, captures statement id |
 | Statements      | Get Statement                        | 200, total_due matches                                |
 | Statements      | List Statements                      | 200, items array                                      |
+| Bank Accounts   | Create Account                       | 201, captures the bank account id                     |
+| Bank Accounts   | Add Debit Card - Visa (primary)      | 201, is_primary true                                  |
+| Bank Accounts   | Add Debit Card - RuPay               | 201                                                   |
+| Bank Accounts   | Get Account With Debit Cards         | 200, 2 debit cards, primary first (variant grouping)  |
+| Bank Accounts   | List Accounts                        | 200, items array, total >= 1                          |
+| Debit Cards     | List Debit Cards                     | 200, items array, total >= 2                          |
 | Error Scenarios | Get Me - no token (401)              | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Me - tampered token (401)        | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Card - unknown key (404)         | 404, errorCode=NOT_FOUND                              |
