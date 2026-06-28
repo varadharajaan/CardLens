@@ -20,6 +20,7 @@ coverage.xml
 
 # ---- Node / Next.js ----
 node_modules/
+package-lock.json
 .next/
 out/
 .turbo/
