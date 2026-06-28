@@ -1,0 +1,65 @@
+# CardLens bank registry - the single source of truth for supported bank identities.
+# Add a bank by appending an entry here; no code change is required. Parsers, detectors, and
+# password rules reference banks by their `code`. Codes are stable and uppercase.
+version: 1
+banks:
+  - code: HDFC
+    display_name: HDFC Bank
+    aliases: ["HDFC", "HDFC Bank"]
+    detection_keywords: ["hdfc", "hdfc bank", "smartstatement", "infinia", "diners club", "millennia"]
+    sender_domains: ["hdfcbank.net", "hdfcbank.com"]
+  - code: ICICI
+    display_name: ICICI Bank
+    aliases: ["ICICI", "ICICI Bank"]
+    detection_keywords: ["icici", "icici bank", "amazon pay icici", "coral", "rubyx", "sapphiro"]
+    sender_domains: ["icicibank.com", "iciccards.com"]
+  - code: SBI
+    display_name: SBI Card
+    aliases: ["SBI", "SBI Card", "State Bank of India"]
+    detection_keywords: ["sbi card", "sbicard", "state bank", "cashback sbi", "simplyclick", "elite"]
+    sender_domains: ["sbicard.com", "sbi.co.in"]
+  - code: AXIS
+    display_name: Axis Bank
+    aliases: ["AXIS", "Axis Bank"]
+    detection_keywords: ["axis", "axis bank", "flipkart axis", "magnus", "atlas", "ace"]
+    sender_domains: ["axisbank.com", "axisbank.co.in"]
+  - code: INDUSIND
+    display_name: IndusInd Bank
+    aliases: ["INDUSIND", "IndusInd", "IndusInd Bank"]
+    detection_keywords: ["indusind", "indusind bank", "legend", "pinnacle", "tiger"]
+    sender_domains: ["indusind.com"]
+  - code: RBL
+    display_name: RBL Bank
+    aliases: ["RBL", "RBL Bank", "Ratnakar"]
+    detection_keywords: ["rbl", "rbl bank", "shoprite", "icon", "world safari"]
+    sender_domains: ["rblbank.com"]
+  - code: HSBC
+    display_name: HSBC
+    aliases: ["HSBC"]
+    detection_keywords: ["hsbc", "hsbc bank", "cashback hsbc", "live+", "platinum hsbc"]
+    sender_domains: ["hsbc.co.in", "hsbc.com"]
+  - code: KOTAK
+    display_name: Kotak Mahindra Bank
+    aliases: ["KOTAK", "Kotak", "Kotak Mahindra"]
+    detection_keywords: ["kotak", "kotak mahindra", "white reserve", "league", "zen", "811"]
+    sender_domains: ["kotak.com"]
+  - code: IDFC
+    display_name: IDFC FIRST Bank
+    aliases: ["IDFC", "IDFC FIRST", "IDFC First Bank"]
+    detection_keywords: ["idfc", "idfc first", "first millennia", "first select", "first wealth"]
+    sender_domains: ["idfcfirstbank.com", "idfcbank.com"]
+  - code: "YES"
+    display_name: YES Bank
+    aliases: ["YES", "YES Bank", "Yes Bank"]
+    detection_keywords: ["yes bank", "yesbank", "yes first", "yes prosperity", "yes marquee"]
+    sender_domains: ["yesbank.in"]
+  - code: SC
+    display_name: Standard Chartered
+    aliases: ["SC", "Standard Chartered", "StanChart"]
+    detection_keywords: ["standard chartered", "stanchart", "smart credit", "ultimate", "rewards360"]
+    sender_domains: ["sc.com", "standardchartered.com"]
+  - code: AMEX
+    display_name: American Express
+    aliases: ["AMEX", "American Express", "Amex"]
+    detection_keywords: ["american express", "amex", "membership rewards", "platinum charge"]
+    sender_domains: ["americanexpress.com", "aexp.com"]
