@@ -74,6 +74,10 @@ Per PART 26.6: token vars are declared (empty) in all three env files; the boots
 | Bank Accounts   | Get Account With Debit Cards         | 200, 2 debit cards, primary first (variant grouping)  |
 | Bank Accounts   | List Accounts                        | 200, items array, total >= 1                          |
 | Debit Cards     | List Debit Cards                     | 200, items array, total >= 2                          |
+| Dashboard       | Overview                             | 200, counts, billing groups, dues aggregated by group |
+| Dashboard       | Rewards Summary                      | 200, totals plus per-format breakdown                 |
+| Dashboard       | Milestones                           | 200, progress toward configured thresholds            |
+| Dashboard       | Anomalies                            | 200, rule-based anomaly list                          |
 | Error Scenarios | Get Me - no token (401)              | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Me - tampered token (401)        | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Card - unknown key (404)         | 404, errorCode=NOT_FOUND                              |
