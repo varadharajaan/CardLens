@@ -35,6 +35,7 @@ class ApiPaths:
     # Domain
     STATEMENTS = "/statements"
     CARDS = "/cards"
+    CARD_ACCOUNTS = "/card-accounts"
     REWARDS_SUMMARY = "/rewards/summary"
     MILESTONES = "/milestones"
     ANOMALIES = "/anomalies"

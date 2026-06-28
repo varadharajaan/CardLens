@@ -57,6 +57,17 @@ Per PART 26.6: token vars are declared (empty) in all three env files; the boots
 | Registry        | List Cards                           | 200, items array, total >= 1, pagination params      |
 | Registry        | Get Card By Key                      | 200, bank=HDFC, key matches                           |
 | Registry        | Match Card                           | 200, matched=true, key matches the upserted card     |
+| Cards           | Add Card                             | 201, bank, is_primary defaults to false               |
+| Cards           | List Cards                           | 200, items array, total >= 1                          |
+| Cards           | Get Card                             | 200, id matches the created card                      |
+| Card Accounts   | Create Account                       | 201, captures the companion billing account id        |
+| Card Accounts   | Add Variant - Mastercard (primary)   | 201, is_primary true                                  |
+| Card Accounts   | Add Variant - RuPay                  | 201                                                   |
+| Card Accounts   | Get Account With Variants            | 200, 2 variants, primary first (companion grouping)   |
+| Card Accounts   | List Accounts                        | 200, items array, total >= 1                          |
+| Statements      | Record Statement                     | 201, reward_parse_status FOUND, captures statement id |
+| Statements      | Get Statement                        | 200, total_due matches                                |
+| Statements      | List Statements                      | 200, items array                                      |
 | Error Scenarios | Get Me - no token (401)              | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Me - tampered token (401)        | 401, errorCode=UNAUTHENTICATED                        |
 | Error Scenarios | Get Card - unknown key (404)         | 404, errorCode=NOT_FOUND                              |
