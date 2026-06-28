@@ -387,6 +387,196 @@
       ]
     },
     {
+      "name": "Cards",
+      "item": [
+        {
+          "name": "Add Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"HDFC\",\n  \"card_name\": \"HDFC Infinia\",\n  \"last4\": \"1234\",\n  \"network\": \"VISA\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/cards", "host": ["{{base_url}}"], "path": ["api", "v1", "cards"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "var b = pm.response.json();",
+            "pm.test('bank HDFC', function () { pm.expect(b.bank).to.eql('HDFC'); });",
+            "pm.test('not primary by default', function () { pm.expect(b.is_primary).to.eql(false); });",
+            "pm.environment.set('card_id', b.id);"
+          ] } } ]
+        },
+        {
+          "name": "List Cards",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/cards?page=1&size=20", "host": ["{{base_url}}"], "path": ["api", "v1", "cards"], "query": [ { "key": "page", "value": "1" }, { "key": "size", "value": "20" } ] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('items array', function () { pm.expect(b.items).to.be.an('array'); });",
+            "pm.test('total at least 1', function () { pm.expect(b.total).to.be.at.least(1); });"
+          ] } } ]
+        },
+        {
+          "name": "Get Card",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/cards/{{card_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "cards", "{{card_id}}"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('id matches', function () { pm.expect(pm.response.json().id).to.eql(pm.environment.get('card_id')); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
+      "name": "Card Accounts",
+      "item": [
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"ICICI\",\n  \"display_name\": \"ICICI MakeMyTrip\",\n  \"last4_primary\": \"9012\",\n  \"statement_day\": 5\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/card-accounts", "host": ["{{base_url}}"], "path": ["api", "v1", "card-accounts"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "var b = pm.response.json();",
+            "pm.test('display name', function () { pm.expect(b.display_name).to.eql('ICICI MakeMyTrip'); });",
+            "pm.environment.set('card_account_id', b.id);"
+          ] } } ]
+        },
+        {
+          "name": "Add Variant - Mastercard (primary)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"ICICI\",\n  \"card_name\": \"MakeMyTrip Mastercard\",\n  \"last4\": \"9012\",\n  \"network\": \"MASTERCARD\",\n  \"account_id\": \"{{card_account_id}}\",\n  \"is_primary\": true,\n  \"reward_format\": \"REWARD_POINTS\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/cards", "host": ["{{base_url}}"], "path": ["api", "v1", "cards"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "pm.test('is primary', function () { pm.expect(pm.response.json().is_primary).to.eql(true); });"
+          ] } } ]
+        },
+        {
+          "name": "Add Variant - RuPay",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"ICICI\",\n  \"card_name\": \"MakeMyTrip RuPay\",\n  \"last4\": \"3456\",\n  \"network\": \"RUPAY\",\n  \"account_id\": \"{{card_account_id}}\",\n  \"reward_format\": \"CASHBACK\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/cards", "host": ["{{base_url}}"], "path": ["api", "v1", "cards"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });"
+          ] } } ]
+        },
+        {
+          "name": "Get Account With Variants",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/card-accounts/{{card_account_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "card-accounts", "{{card_account_id}}"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('account display name', function () { pm.expect(b.account.display_name).to.eql('ICICI MakeMyTrip'); });",
+            "pm.test('two companion variants', function () { pm.expect(b.variants.length).to.eql(2); });",
+            "pm.test('primary variant first', function () { pm.expect(b.variants[0].is_primary).to.eql(true); });"
+          ] } } ]
+        },
+        {
+          "name": "List Accounts",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/card-accounts?page=1&size=20", "host": ["{{base_url}}"], "path": ["api", "v1", "card-accounts"], "query": [ { "key": "page", "value": "1" }, { "key": "size", "value": "20" } ] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "var b = pm.response.json();",
+            "pm.test('items array', function () { pm.expect(b.items).to.be.an('array'); });",
+            "pm.test('total at least 1', function () { pm.expect(b.total).to.be.at.least(1); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
+      "name": "Statements",
+      "item": [
+        {
+          "name": "Record Statement",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "X-Request-Id", "value": "{{request_id}}" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"bank\": \"HDFC\",\n  \"card_name\": \"HDFC Infinia\",\n  \"last4\": \"1234\",\n  \"due_date\": \"2026-02-15\",\n  \"total_due\": 25000.0,\n  \"minimum_due\": 1250.0,\n  \"reward_points_closing\": 48000,\n  \"reward_parse_status\": \"FOUND\",\n  \"reward_confidence\": 0.95\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{base_url}}/api/v1/statements", "host": ["{{base_url}}"], "path": ["api", "v1", "statements"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "var b = pm.response.json();",
+            "pm.test('reward parse status FOUND', function () { pm.expect(b.reward_parse_status).to.eql('FOUND'); });",
+            "pm.environment.set('statement_id', b.id);"
+          ] } } ]
+        },
+        {
+          "name": "Get Statement",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/statements/{{statement_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "statements", "{{statement_id}}"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('total due', function () { pm.expect(pm.response.json().total_due).to.eql(25000.0); });"
+          ] } } ]
+        },
+        {
+          "name": "List Statements",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" }, { "key": "X-Request-Id", "value": "{{request_id}}" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{base_url}}/api/v1/statements?page=1&size=20", "host": ["{{base_url}}"], "path": ["api", "v1", "statements"], "query": [ { "key": "page", "value": "1" }, { "key": "size", "value": "20" } ] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('items array', function () { pm.expect(pm.response.json().items).to.be.an('array'); });"
+          ] } } ]
+        }
+      ]
+    },
+    {
       "name": "Error Scenarios",
       "item": [
         {
