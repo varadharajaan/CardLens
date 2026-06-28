@@ -13,6 +13,7 @@ from app import __version__
 from app.auth.router import router as auth_router
 from app.config import settings
 from app.health.router import router as health_router
+from app.registry.router import router as registry_router
 from app.shared.config.data_loader import get_data_loader
 from app.shared.constants.headers import HeaderNames
 from app.shared.errors.handlers import register_exception_handlers
@@ -53,6 +54,7 @@ def create_app() -> FastAPI:
     api = APIRouter(prefix=settings.api_prefix)
     api.include_router(auth_router)
     api.include_router(users_router)
+    api.include_router(registry_router)
     app.include_router(api)
 
     logger.info(
