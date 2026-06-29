@@ -29,10 +29,18 @@ az provider register -n Microsoft.ContainerRegistry --wait | Out-Null
 Write-Host "[deploy] resource group $ResourceGroup in $Location"
 az group create -n $ResourceGroup -l $Location --only-show-errors | Out-Null
 
-Write-Host '[deploy] backend (cloud build, a few minutes)...'
-az containerapp up --name cardlens-api --resource-group $ResourceGroup --location $Location `
-    --environment $Env --source "$RepoRoot" --ingress external --target-port 8000
-az containerapp update -n cardlens-api -g $ResourceGroup --min-replicas 0 --max-replicas 2 --only-show-errors | Out-Null
+Write-Host '[deploy] backend (ACR build + Container App, a few minutes)...'
+$acr = (az acr list -g $ResourceGroup --query "[0].name" -o tsv)
+if (-not $acr) { $acr = "cardlensacr$((Get-Random -Maximum 99999))"; az acr create -n $acr -g $ResourceGroup --sku Basic --admin-enabled true --only-show-errors | Out-Null }
+az acr update -n $acr --admin-enabled true --only-show-errors | Out-Null
+az acr build -r $acr -t "cardlens-api:v1" -f Dockerfile "$RepoRoot" | Out-Null
+$loginServer = az acr show -n $acr --query loginServer -o tsv
+$acrUser = az acr credential show -n $acr --query username -o tsv
+$acrPass = az acr credential show -n $acr --query "passwords[0].value" -o tsv
+az containerapp create --name cardlens-api --resource-group $ResourceGroup --environment $Env `
+    --image "$loginServer/cardlens-api:v1" --registry-server $loginServer `
+    --registry-username $acrUser --registry-password $acrPass `
+    --ingress external --target-port 8000 --min-replicas 0 --max-replicas 2 --only-show-errors | Out-Null
 $api = az containerapp show -n cardlens-api -g $ResourceGroup --query properties.configuration.ingress.fqdn -o tsv
 
 $ok = $false
