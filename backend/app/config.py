@@ -79,6 +79,12 @@ class Settings(BaseSettings):
     document_vault_enabled: bool = False
     retain_raw_pdf: bool = False
 
+    # --- mTLS (opt-in; enforced by the reverse proxy / uvicorn ssl args when enabled) ---
+    mtls_enabled: bool = False
+    mtls_ca_cert: str = ""
+    mtls_server_cert: str = ""
+    mtls_server_key: str = ""
+
     # --- Externalized config data locations ---
     config_dir: Path = _BACKEND_DIR / "app" / "shared" / "config" / "data"
     card_registry_dir: Path = _REPO_ROOT / "card_registry"
