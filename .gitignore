@@ -23,6 +23,7 @@ node_modules/
 .next/
 out/
 .turbo/
+certs/
 *.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
