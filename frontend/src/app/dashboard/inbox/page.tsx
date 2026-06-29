@@ -12,6 +12,7 @@ export default function InboxPage() {
   const [busy, setBusy] = useState(false);
   const [scan, setScan] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [dob, setDob] = useState("");
   const [last4, setLast4] = useState("");
@@ -19,10 +20,14 @@ export default function InboxPage() {
   async function connect() {
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       const result = await apiFetch<ConnectResponse>("/mail/accounts/connect", { method: "POST" });
       if (!result.dry_run) window.location.href = result.authorize_url;
-      else setScan({ scanned: 0, statements_ingested: 0, dry_run: true });
+      else {
+        setScan({ scanned: 0, statements_ingested: 0, dry_run: true });
+        setNotice("Dry-run mode: Google OAuth app credentials are not configured locally yet. The Connect button will open Google's consent screen once CARDLENS_GOOGLE_CLIENT_ID/SECRET exist in .env.");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start Gmail consent");
     } finally {
@@ -33,6 +38,7 @@ export default function InboxPage() {
   async function runScan() {
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       await apiFetch<void>("/mail/accounts/password-hints", {
         method: "PUT",
@@ -53,7 +59,9 @@ export default function InboxPage() {
         <p className="text-sm font-medium text-sky-300">Gmail onboarding</p>
         <h2 className="mt-1 text-3xl font-bold tracking-tight text-white">Connect Gmail, scan statements, populate CardLens</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-          OAuth only. No Gmail passwords. Tokens are encrypted. Dry-run mode ingests sample statement data until Google OAuth credentials are configured.
+          User consent happens here: click Connect Gmail, sign in with Google, and approve read-only Gmail access.
+          No Gmail passwords. Tokens and PDF password hints are encrypted. If this local app has no Google OAuth
+          client credentials configured, CardLens stays in dry-run mode and ingests sample statement data.
         </p>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name on card" />
@@ -61,12 +69,13 @@ export default function InboxPage() {
           <input className="input" value={last4} onChange={(e) => setLast4(e.target.value)} placeholder="Card last4" maxLength={4} />
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
-          <button className="btn" type="button" onClick={connect} disabled={busy}>Connect Gmail</button>
+          <button className="btn" type="button" onClick={connect} disabled={busy}>Connect Gmail with Google</button>
           <button className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white" type="button" onClick={runScan} disabled={busy}>Run pull scan</button>
         </div>
       </div>
 
       {error ? <ErrorBanner message={error} /> : null}
+      {notice ? <div className="card border-sky-400/20 bg-sky-500/10 text-sm leading-6 text-sky-200">{notice}</div> : null}
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatTile label="Consent" value="OAuth" sub="read-only Gmail scope" icon={<IMail className="h-5 w-5" />} tone="sky" />
