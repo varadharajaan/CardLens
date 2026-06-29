@@ -39,3 +39,22 @@ def client() -> Iterator[TestClient]:
     with TestClient(app) as test_client:
         yield test_client
     engine.dispose()
+
+
+@pytest.fixture
+def db_session() -> Iterator[Session]:
+    """Yield a Session on an isolated in-memory database (for service-level tests)."""
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+        future=True,
+    )
+    metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, class_=Session, autoflush=False, expire_on_commit=False)
+    db = factory()
+    try:
+        yield db
+    finally:
+        db.close()
+        engine.dispose()
