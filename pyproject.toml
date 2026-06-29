@@ -99,7 +99,13 @@ layers = ["router", "service", "engine", "profiles"]
 containers = ["app.parsers"]
 
 [[tool.importlinter.contracts]]
+name = "Features module layering (router -> service -> schemas)"
+type = "layers"
+layers = ["router", "service", "schemas"]
+containers = ["app.features"]
+
+[[tool.importlinter.contracts]]
 name = "Shared layer never imports feature modules"
 type = "forbidden"
 source_modules = ["app.shared"]
-forbidden_modules = ["app.auth", "app.users", "app.registry", "app.cards", "app.statements", "app.bank_accounts", "app.mail"]
+forbidden_modules = ["app.auth", "app.users", "app.registry", "app.cards", "app.statements", "app.bank_accounts", "app.mail", "app.features"]

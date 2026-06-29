@@ -17,6 +17,7 @@ from app.cards.router import accounts_router as card_accounts_router
 from app.cards.router import router as cards_router
 from app.config import settings
 from app.dashboard.router import router as dashboard_router
+from app.features.router import router as features_router
 from app.health.router import router as health_router
 from app.mail.router import router as mail_router
 from app.mail.scheduler import register_mail_scheduler
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     api.include_router(dashboard_router)
     api.include_router(parsers_router)
     api.include_router(mail_router)
+    api.include_router(features_router)
     app.include_router(api)
     register_mail_scheduler(app)
 
