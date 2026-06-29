@@ -12,6 +12,9 @@ export default function InboxPage() {
   const [busy, setBusy] = useState(false);
   const [scan, setScan] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [dob, setDob] = useState("");
+  const [last4, setLast4] = useState("");
 
   async function connect() {
     setBusy(true);
@@ -31,6 +34,10 @@ export default function InboxPage() {
     setBusy(true);
     setError(null);
     try {
+      await apiFetch<void>("/mail/accounts/password-hints", {
+        method: "PUT",
+        body: JSON.stringify({ name: name || undefined, dob_ddmm: dob || undefined, card_last4: last4 || undefined }),
+      });
       setScan(await apiFetch<ScanResult>("/ingestion/scan", { method: "POST" }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Mailbox scan failed");
@@ -48,6 +55,11 @@ export default function InboxPage() {
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
           OAuth only. No Gmail passwords. Tokens are encrypted. Dry-run mode ingests sample statement data until Google OAuth credentials are configured.
         </p>
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name on card" />
+          <input className="input" value={dob} onChange={(e) => setDob(e.target.value)} placeholder="DOB DDMM" maxLength={4} />
+          <input className="input" value={last4} onChange={(e) => setLast4(e.target.value)} placeholder="Card last4" maxLength={4} />
+        </div>
         <div className="mt-6 flex flex-wrap gap-3">
           <button className="btn" type="button" onClick={connect} disabled={busy}>Connect Gmail</button>
           <button className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white" type="button" onClick={runScan} disabled={busy}>Run pull scan</button>

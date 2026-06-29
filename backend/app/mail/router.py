@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.mail.repository import MailRepository
-from app.mail.schemas import ConnectResponse, MailAccountRead, ScanResult
+from app.mail.schemas import ConnectResponse, MailAccountRead, PasswordHintsRequest, ScanResult
 from app.mail.service import MailService
 from app.config import settings
 from app.shared.constants.api_paths import ApiPaths
@@ -27,6 +27,15 @@ def status(user_id: UUID = Depends(get_current_user_id), db: Session = Depends(g
 @router.post(ApiPaths.MAIL_ACCOUNTS_CONNECT, response_model=ConnectResponse, summary="Start Gmail consent")
 def connect(user_id: UUID = Depends(get_current_user_id), db: Session = Depends(get_db)) -> ConnectResponse:
     return MailService(db).connect(user_id)
+
+
+@router.put("/mail/accounts/password-hints", status_code=204, summary="Save encrypted PDF password hints")
+def save_password_hints(
+    body: PasswordHintsRequest,
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> None:
+    MailService(db).save_password_hints(user_id, body)
 
 
 @router.get(ApiPaths.MAIL_ACCOUNTS_CALLBACK, summary="OAuth callback")

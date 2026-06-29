@@ -7,6 +7,7 @@ dashboard) is demonstrable without external credentials. Live mode uses the user
 from __future__ import annotations
 
 import base64
+import json
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
@@ -20,7 +21,8 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.ingestion.service import IngestionService
 from app.mail.repository import MailRepository
-from app.mail.schemas import ConnectResponse, ScanResult
+from app.mail.models import MailAccount
+from app.mail.schemas import ConnectResponse, PasswordHintsRequest, ScanResult
 from app.parsers.pdf import CardholderHints
 from app.shared.errors.exceptions import DomainValidationError
 from app.shared.security.crypto import decrypt_text, encrypt_text
@@ -98,6 +100,11 @@ class MailService:
             scopes=payload.get("scope", " ".join(_SCOPES)),
         )
 
+    def save_password_hints(self, user_id: UUID, hints: PasswordHintsRequest) -> None:
+        """Encrypt and store PDF password hints for Gmail attachment unlocks."""
+        data = hints.model_dump(exclude_none=True)
+        self._repo.upsert(user_id, password_hints_enc=encrypt_text(json.dumps(data)), status="CONNECTED")
+
     def scan(self, user_id: UUID) -> ScanResult:
         """Pull statement emails and ingest attachments. Dry-run ingests a sample statement."""
         if self.dry_run:
@@ -140,7 +147,7 @@ class MailService:
                 )
                 raw = base64.urlsafe_b64decode(attachment["data"].encode("utf-8"))
                 try:
-                    _, created = self._ingest.ingest_pdf(user_id, raw, None, CardholderHints())
+                    _, created = self._ingest.ingest_pdf(user_id, raw, None, _hints_from_account(account))
                     if created:
                         ingested += 1
                 except Exception as exc:  # noqa: BLE001 - keep scanning other attachments
@@ -165,3 +172,11 @@ def _pdf_attachment_ids(payload: dict[str, Any]) -> list[str]:
     for part in parts:
         ids.extend(_pdf_attachment_ids(part))
     return ids
+
+
+def _hints_from_account(account: MailAccount) -> CardholderHints:
+    """Decrypt stored PDF password hints; empty hints are safe but may not unlock encrypted PDFs."""
+    if not account.password_hints_enc:
+        return CardholderHints()
+    raw = json.loads(decrypt_text(account.password_hints_enc))
+    return CardholderHints(**raw)

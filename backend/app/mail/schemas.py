@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MailAccountRead(BaseModel):
@@ -24,6 +24,17 @@ class ConnectResponse(BaseModel):
 
     authorize_url: str
     dry_run: bool
+
+
+class PasswordHintsRequest(BaseModel):
+    """Encrypted-at-rest hints used to unlock bank/card statement PDFs from Gmail."""
+
+    name: str | None = Field(default=None, max_length=120)
+    dob_ddmm: str | None = Field(default=None, pattern=r"^\d{4}$")
+    dob_ddmmyy: str | None = Field(default=None, pattern=r"^\d{6}$")
+    card_last4: str | None = Field(default=None, pattern=r"^\d{4}$")
+    card_last6: str | None = Field(default=None, pattern=r"^\d{6}$")
+    crn: str | None = Field(default=None, max_length=40)
 
 
 class ScanResult(BaseModel):

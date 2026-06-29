@@ -22,6 +22,7 @@ class MailAccount(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     status: Mapped[str] = mapped_column(String(20), default="PENDING", nullable=False)
     access_token_enc: Mapped[str | None] = mapped_column(Text, nullable=True)
     refresh_token_enc: Mapped[str | None] = mapped_column(Text, nullable=True)
+    password_hints_enc: Mapped[str | None] = mapped_column(Text, nullable=True)
     scopes: Mapped[str | None] = mapped_column(Text, nullable=True)
     last_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     statements_found: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

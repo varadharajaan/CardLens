@@ -17,12 +17,18 @@ def test_mail_connect_status_and_scan_dry_run(client: TestClient) -> None:
     headers = _auth(client)
 
     connected = client.post("/api/v1/mail/accounts/connect", headers=headers)
+    hints = client.put(
+        "/api/v1/mail/accounts/password-hints",
+        json={"name": "Varad", "dob_ddmm": "0906", "card_last4": "1234"},
+        headers=headers,
+    )
     status = client.get("/api/v1/mail/accounts", headers=headers)
     scan = client.post("/api/v1/ingestion/scan", headers=headers)
     statements = client.get("/api/v1/statements", headers=headers)
 
     assert connected.status_code == 200
     assert connected.json()["dry_run"] is True
+    assert hints.status_code == 204
     assert status.status_code == 200
     assert status.json()["status"] == "CONNECTED"
     assert scan.status_code == 200
