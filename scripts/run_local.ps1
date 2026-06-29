@@ -21,14 +21,11 @@ $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 . "$RepoRoot\.venv\Scripts\Activate.ps1"
 
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    $nodeRoot = Join-Path $env:LOCALAPPDATA 'node20'
-    if (Test-Path $nodeRoot) {
-        $dir = Get-ChildItem $nodeRoot -Directory | Select-Object -First 1
-        if ($dir) { $env:Path = "$($dir.FullName);$env:Path" }
-    }
+$nodeRoot = Join-Path $env:LOCALAPPDATA 'node20'
+if (Test-Path $nodeRoot) {
+    $dir = Get-ChildItem $nodeRoot -Directory | Select-Object -First 1
+    if ($dir) { $env:Path = "$($dir.FullName);$env:Path" }
 }
-
 $env:PYTHONPATH = "$RepoRoot\backend"
 $devDb = Join-Path "$RepoRoot\backend" 'cardlens.db'
 $env:CARDLENS_DATABASE_URL = 'sqlite:///' + ($devDb -replace '\\', '/')
