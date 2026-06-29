@@ -24,6 +24,7 @@ Write-Host '[deploy] ensuring containerapp extension...'
 az extension add --name containerapp --upgrade --only-show-errors | Out-Null
 az provider register -n Microsoft.App --wait | Out-Null
 az provider register -n Microsoft.OperationalInsights --wait | Out-Null
+az provider register -n Microsoft.ContainerRegistry --wait | Out-Null
 
 Write-Host "[deploy] resource group $ResourceGroup in $Location"
 az group create -n $ResourceGroup -l $Location --only-show-errors | Out-Null
