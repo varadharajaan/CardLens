@@ -48,16 +48,12 @@ class Card(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "cards"
 
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True, nullable=False)
-    account_id: Mapped[UUID | None] = mapped_column(
-        Uuid, ForeignKey("card_accounts.id"), index=True, nullable=True
-    )
+    account_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("card_accounts.id"), index=True, nullable=True)
     bank: Mapped[str] = mapped_column(String(40), index=True, nullable=False)
     card_name: Mapped[str] = mapped_column(String(200), nullable=False)
     last4: Mapped[str] = mapped_column(String(4), nullable=False)
     network: Mapped[str | None] = mapped_column(String(20), nullable=True)
     registry_key: Mapped[str | None] = mapped_column(String(120), nullable=True)
     reward_format: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    is_primary: Mapped[bool] = mapped_column(
-        Boolean(create_constraint=False), default=False, nullable=False
-    )
+    is_primary: Mapped[bool] = mapped_column(Boolean(create_constraint=False), default=False, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default=CardStatus.ACTIVE.value, nullable=False)

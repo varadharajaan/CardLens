@@ -17,9 +17,7 @@ class CardRegistryRepository:
 
     def get_by_key(self, key: str) -> CardRegistryEntry | None:
         """Return the entry with the given key, or None."""
-        return self._db.execute(
-            select(CardRegistryEntry).where(CardRegistryEntry.key == key)
-        ).scalar_one_or_none()
+        return self._db.execute(select(CardRegistryEntry).where(CardRegistryEntry.key == key)).scalar_one_or_none()
 
     def all(self) -> list[CardRegistryEntry]:
         """Return every registry entry (used for matching)."""
@@ -27,12 +25,11 @@ class CardRegistryRepository:
 
     def list(self, offset: int, limit: int) -> tuple[list[CardRegistryEntry], int]:
         """Return a page of entries and the total count."""
-        total = self._db.execute(
-            select(func.count()).select_from(CardRegistryEntry)
-        ).scalar_one()
+        total = self._db.execute(select(func.count()).select_from(CardRegistryEntry)).scalar_one()
         rows = (
             self._db.execute(
-                select(CardRegistryEntry).order_by(CardRegistryEntry.bank, CardRegistryEntry.card_name)
+                select(CardRegistryEntry)
+                .order_by(CardRegistryEntry.bank, CardRegistryEntry.card_name)
                 .offset(offset)
                 .limit(limit)
             )

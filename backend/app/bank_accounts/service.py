@@ -21,15 +21,11 @@ class BankAccountService:
     def __init__(self, db: Session) -> None:
         self._repo = BankAccountRepository(db)
 
-    def list_accounts(
-        self, user_id: UUID, offset: int, limit: int
-    ) -> tuple[list[BankAccount], int]:
+    def list_accounts(self, user_id: UUID, offset: int, limit: int) -> tuple[list[BankAccount], int]:
         """Return a page of the user's bank accounts and the total count."""
         return self._repo.list_accounts_for_user(user_id, offset, limit)
 
-    def get_account_detail(
-        self, user_id: UUID, account_id: UUID
-    ) -> tuple[BankAccount, list[DebitCard]]:
+    def get_account_detail(self, user_id: UUID, account_id: UUID) -> tuple[BankAccount, list[DebitCard]]:
         """Return a bank account and its debit cards, or raise :class:`NotFoundError`."""
         account = self._repo.get_account_for_user(user_id, account_id)
         if account is None:
@@ -43,9 +39,7 @@ class BankAccountService:
         _logger.info("bank_account.added", account_id=str(account.id), bank=account.bank)
         return account
 
-    def list_debit_cards(
-        self, user_id: UUID, offset: int, limit: int
-    ) -> tuple[list[DebitCard], int]:
+    def list_debit_cards(self, user_id: UUID, offset: int, limit: int) -> tuple[list[DebitCard], int]:
         """Return a page of the user's debit cards and the total count."""
         return self._repo.list_debit_cards_for_user(user_id, offset, limit)
 

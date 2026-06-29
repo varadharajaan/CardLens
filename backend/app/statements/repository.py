@@ -24,9 +24,7 @@ class StatementRepository:
         conditions = [Statement.user_id == user_id]
         if card_id is not None:
             conditions.append(Statement.card_id == card_id)
-        total = self._db.execute(
-            select(func.count()).select_from(Statement).where(*conditions)
-        ).scalar_one()
+        total = self._db.execute(select(func.count()).select_from(Statement).where(*conditions)).scalar_one()
         rows = (
             self._db.execute(
                 select(Statement)

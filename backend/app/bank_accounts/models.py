@@ -39,16 +39,12 @@ class BankAccount(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True, nullable=False)
     bank: Mapped[str] = mapped_column(String(40), index=True, nullable=False)
-    account_type: Mapped[str] = mapped_column(
-        String(20), default=AccountType.SAVINGS.value, nullable=False
-    )
+    account_type: Mapped[str] = mapped_column(String(20), default=AccountType.SAVINGS.value, nullable=False)
     display_name: Mapped[str] = mapped_column(String(200), nullable=False)
     last4: Mapped[str | None] = mapped_column(String(4), nullable=True)
     ifsc: Mapped[str | None] = mapped_column(String(11), nullable=True)
     balance: Mapped[float | None] = mapped_column(Float, nullable=True)
-    status: Mapped[str] = mapped_column(
-        String(20), default=BankAccountStatus.ACTIVE.value, nullable=False
-    )
+    status: Mapped[str] = mapped_column(String(20), default=BankAccountStatus.ACTIVE.value, nullable=False)
 
 
 class DebitCard(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -61,16 +57,10 @@ class DebitCard(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "debit_cards"
 
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True, nullable=False)
-    bank_account_id: Mapped[UUID] = mapped_column(
-        Uuid, ForeignKey("bank_accounts.id"), index=True, nullable=False
-    )
+    bank_account_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("bank_accounts.id"), index=True, nullable=False)
     card_name: Mapped[str] = mapped_column(String(200), nullable=False)
     last4: Mapped[str] = mapped_column(String(4), nullable=False)
     network: Mapped[str | None] = mapped_column(String(20), nullable=True)
     reward_format: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    is_primary: Mapped[bool] = mapped_column(
-        Boolean(create_constraint=False), default=False, nullable=False
-    )
-    status: Mapped[str] = mapped_column(
-        String(20), default=BankAccountStatus.ACTIVE.value, nullable=False
-    )
+    is_primary: Mapped[bool] = mapped_column(Boolean(create_constraint=False), default=False, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default=BankAccountStatus.ACTIVE.value, nullable=False)

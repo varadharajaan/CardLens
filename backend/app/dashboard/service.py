@@ -53,9 +53,7 @@ class DashboardService:
         self._repo = DashboardRepository(db)
         self._data = get_data_loader()
 
-    def _latest_per_group(
-        self, statements: list[Statement], card_to_account: dict[UUID, UUID]
-    ) -> list[Statement]:
+    def _latest_per_group(self, statements: list[Statement], card_to_account: dict[UUID, UUID]) -> list[Statement]:
         """Return the newest statement for each billing group (input must be newest-first)."""
         seen: dict[str, Statement] = {}
         for statement in statements:

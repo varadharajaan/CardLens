@@ -147,8 +147,7 @@ class DataLoader:
         if self._reward_milestones is None:
             raw = self._read_yaml(_REWARD_MILESTONES_FILE)
             self._reward_milestones = {
-                fmt: [MilestoneRule(**item) for item in items]
-                for fmt, items in raw.get("milestones", {}).items()
+                fmt: [MilestoneRule(**item) for item in items] for fmt, items in raw.get("milestones", {}).items()
             }
         return self._reward_milestones
 

@@ -19,9 +19,7 @@ class CardRepository:
 
     def list_for_user(self, user_id: UUID, offset: int, limit: int) -> tuple[list[Card], int]:
         """Return a page of the user's cards and the total count."""
-        total = self._db.execute(
-            select(func.count()).select_from(Card).where(Card.user_id == user_id)
-        ).scalar_one()
+        total = self._db.execute(select(func.count()).select_from(Card).where(Card.user_id == user_id)).scalar_one()
         rows = (
             self._db.execute(
                 select(Card)
@@ -37,9 +35,7 @@ class CardRepository:
 
     def get_for_user(self, user_id: UUID, card_id: UUID) -> Card | None:
         """Return the user's card with the given id, or None."""
-        return self._db.execute(
-            select(Card).where(Card.id == card_id, Card.user_id == user_id)
-        ).scalar_one_or_none()
+        return self._db.execute(select(Card).where(Card.id == card_id, Card.user_id == user_id)).scalar_one_or_none()
 
     def create(self, user_id: UUID, data: CardCreate) -> Card:
         """Insert a new card owned by the user."""
@@ -49,9 +45,7 @@ class CardRepository:
         self._db.refresh(card)
         return card
 
-    def list_accounts_for_user(
-        self, user_id: UUID, offset: int, limit: int
-    ) -> tuple[list[CardAccount], int]:
+    def list_accounts_for_user(self, user_id: UUID, offset: int, limit: int) -> tuple[list[CardAccount], int]:
         """Return a page of the user's card billing accounts and the total count."""
         total = self._db.execute(
             select(func.count()).select_from(CardAccount).where(CardAccount.user_id == user_id)
@@ -72,9 +66,7 @@ class CardRepository:
     def get_account_for_user(self, user_id: UUID, account_id: UUID) -> CardAccount | None:
         """Return the user's card billing account with the given id, or None."""
         return self._db.execute(
-            select(CardAccount).where(
-                CardAccount.id == account_id, CardAccount.user_id == user_id
-            )
+            select(CardAccount).where(CardAccount.id == account_id, CardAccount.user_id == user_id)
         ).scalar_one_or_none()
 
     def list_variants_for_account(self, user_id: UUID, account_id: UUID) -> list[Card]:

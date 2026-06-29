@@ -72,9 +72,7 @@ class ProfileLoader:
         candidates = self.for_bank(bank) if bank else self._all()
         haystack = text.lower()
         matched = [
-            p
-            for p in candidates
-            if p.fingerprint and all(keyword.lower() in haystack for keyword in p.fingerprint)
+            p for p in candidates if p.fingerprint and all(keyword.lower() in haystack for keyword in p.fingerprint)
         ]
         pool = matched or ([] if bank is None else candidates)
         if not pool:

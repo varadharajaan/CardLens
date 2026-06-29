@@ -17,9 +17,7 @@ class BankAccountRepository:
     def __init__(self, db: Session) -> None:
         self._db = db
 
-    def list_accounts_for_user(
-        self, user_id: UUID, offset: int, limit: int
-    ) -> tuple[list[BankAccount], int]:
+    def list_accounts_for_user(self, user_id: UUID, offset: int, limit: int) -> tuple[list[BankAccount], int]:
         """Return a page of the user's bank accounts and the total count."""
         total = self._db.execute(
             select(func.count()).select_from(BankAccount).where(BankAccount.user_id == user_id)
@@ -40,9 +38,7 @@ class BankAccountRepository:
     def get_account_for_user(self, user_id: UUID, account_id: UUID) -> BankAccount | None:
         """Return the user's bank account with the given id, or None."""
         return self._db.execute(
-            select(BankAccount).where(
-                BankAccount.id == account_id, BankAccount.user_id == user_id
-            )
+            select(BankAccount).where(BankAccount.id == account_id, BankAccount.user_id == user_id)
         ).scalar_one_or_none()
 
     def list_debit_cards_for_account(self, user_id: UUID, account_id: UUID) -> list[DebitCard]:
@@ -58,9 +54,7 @@ class BankAccountRepository:
         )
         return list(rows)
 
-    def list_debit_cards_for_user(
-        self, user_id: UUID, offset: int, limit: int
-    ) -> tuple[list[DebitCard], int]:
+    def list_debit_cards_for_user(self, user_id: UUID, offset: int, limit: int) -> tuple[list[DebitCard], int]:
         """Return a page of the user's debit cards and the total count."""
         total = self._db.execute(
             select(func.count()).select_from(DebitCard).where(DebitCard.user_id == user_id)

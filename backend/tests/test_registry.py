@@ -100,9 +100,7 @@ def test_upsert_is_idempotent_by_key(client: TestClient) -> None:
     headers = _auth_header(client)
 
     client.post("/api/v1/registry/cards", json=_VALID_ENTRY, headers=headers)
-    second = client.post(
-        "/api/v1/registry/cards", json=dict(_VALID_ENTRY, version=2), headers=headers
-    )
+    second = client.post("/api/v1/registry/cards", json=dict(_VALID_ENTRY, version=2), headers=headers)
     listed = client.get("/api/v1/registry/cards")
 
     assert second.status_code == 201
@@ -113,9 +111,7 @@ def test_upsert_is_idempotent_by_key(client: TestClient) -> None:
 def test_upsert_invalid_network_returns_422(client: TestClient) -> None:
     headers = _auth_header(client)
 
-    response = client.post(
-        "/api/v1/registry/cards", json=dict(_VALID_ENTRY, network="BITCOIN"), headers=headers
-    )
+    response = client.post("/api/v1/registry/cards", json=dict(_VALID_ENTRY, network="BITCOIN"), headers=headers)
 
     assert response.status_code == 422
     assert response.json()["errorCode"] == "VALIDATION_FAILED"

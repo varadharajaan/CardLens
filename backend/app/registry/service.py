@@ -39,9 +39,7 @@ class RegistryService:
         try:
             self._loader.validate_data(data.model_dump(mode="json"))
         except SchemaValidationError as exc:
-            raise DomainValidationError(
-                f"Registry entry failed schema validation: {exc.message}"
-            ) from exc
+            raise DomainValidationError(f"Registry entry failed schema validation: {exc.message}") from exc
         return self._repo.upsert(data)
 
     def list_entries(self, offset: int, limit: int) -> tuple[list[CardRegistryEntry], int]:
@@ -55,9 +53,7 @@ class RegistryService:
             raise NotFoundError("Registry entry not found.")
         return entry
 
-    def match(
-        self, bank: str | None, card_name: str | None, last4: str | None = None
-    ) -> RegistryMatchResult:
+    def match(self, bank: str | None, card_name: str | None, last4: str | None = None) -> RegistryMatchResult:
         """Match a detected card against the registry."""
         entries = self._repo.all()
         best, score = best_match(bank, card_name, entries)

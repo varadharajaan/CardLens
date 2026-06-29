@@ -31,9 +31,7 @@ class Statement(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "statements"
 
     user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True, nullable=False)
-    account_id: Mapped[UUID | None] = mapped_column(
-        Uuid, ForeignKey("card_accounts.id"), index=True, nullable=True
-    )
+    account_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("card_accounts.id"), index=True, nullable=True)
     card_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("cards.id"), index=True, nullable=True)
 
     bank: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -61,9 +59,7 @@ class Statement(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
     reward_confidence: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     reward_parse_reason: Mapped[str | None] = mapped_column(String(200), nullable=True)
-    manual_review_flag: Mapped[bool] = mapped_column(
-        Boolean(create_constraint=False), default=False, nullable=False
-    )
+    manual_review_flag: Mapped[bool] = mapped_column(Boolean(create_constraint=False), default=False, nullable=False)
 
     parse_confidence: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     evidence_snippet: Mapped[str | None] = mapped_column(Text, nullable=True)

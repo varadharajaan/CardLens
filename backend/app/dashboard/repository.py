@@ -21,9 +21,7 @@ class DashboardRepository:
 
     def _count(self, model: Any, user_id: UUID) -> int:
         return int(
-            self._db.execute(
-                select(func.count()).select_from(model).where(model.user_id == user_id)
-            ).scalar_one()
+            self._db.execute(select(func.count()).select_from(model).where(model.user_id == user_id)).scalar_one()
         )
 
     def counts(self, user_id: UUID) -> dict[str, int]:
@@ -59,8 +57,6 @@ class DashboardRepository:
     def card_to_account(self, user_id: UUID) -> dict[UUID, UUID]:
         """Return a map of card id to its billing account id, for cards that belong to an account."""
         rows = self._db.execute(
-            select(Card.id, Card.account_id).where(
-                Card.user_id == user_id, Card.account_id.is_not(None)
-            )
+            select(Card.id, Card.account_id).where(Card.user_id == user_id, Card.account_id.is_not(None))
         ).all()
         return {row[0]: row[1] for row in rows if row[1] is not None}

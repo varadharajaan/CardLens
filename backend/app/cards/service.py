@@ -38,15 +38,11 @@ class CardService:
         _logger.info("card.added", card_id=str(card.id), bank=card.bank, last4=card.last4)
         return card
 
-    def list_accounts(
-        self, user_id: UUID, offset: int, limit: int
-    ) -> tuple[list[CardAccount], int]:
+    def list_accounts(self, user_id: UUID, offset: int, limit: int) -> tuple[list[CardAccount], int]:
         """Return a page of the user's card billing accounts and the total count."""
         return self._repo.list_accounts_for_user(user_id, offset, limit)
 
-    def get_account_detail(
-        self, user_id: UUID, account_id: UUID
-    ) -> tuple[CardAccount, list[Card]]:
+    def get_account_detail(self, user_id: UUID, account_id: UUID) -> tuple[CardAccount, list[Card]]:
         """Return a billing account and its companion variants, or raise :class:`NotFoundError`."""
         account = self._repo.get_account_for_user(user_id, account_id)
         if account is None:

@@ -32,9 +32,7 @@ class RegistryLoader:
             if not schema_path.exists():
                 raise FileNotFoundError(f"No registry schema for version {schema_version}: {schema_path}")
             schema = json.loads(schema_path.read_text(encoding="utf-8"))
-            self._validators[schema_version] = Draft202012Validator(
-                schema, format_checker=FormatChecker()
-            )
+            self._validators[schema_version] = Draft202012Validator(schema, format_checker=FormatChecker())
         return self._validators[schema_version]
 
     def iter_entry_files(self) -> list[Path]:
