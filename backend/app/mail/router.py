@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.mail.repository import MailRepository
 from app.mail.schemas import ConnectResponse, MailAccountRead, ScanResult
 from app.mail.service import MailService
+from app.config import settings
 from app.shared.constants.api_paths import ApiPaths
 from app.shared.database.session import get_db
 from app.shared.security.deps import get_current_user_id
@@ -30,7 +31,9 @@ def connect(user_id: UUID = Depends(get_current_user_id), db: Session = Depends(
 
 @router.get(ApiPaths.MAIL_ACCOUNTS_CALLBACK, summary="OAuth callback")
 def callback(code: str | None = None, state: str | None = None, db: Session = Depends(get_db)) -> RedirectResponse:
-    return RedirectResponse(url="/dashboard/inbox?connected=1")
+    if code and state:
+        MailService(db).complete_oauth(UUID(state), code)
+    return RedirectResponse(url=f"{settings.frontend_base_url}/dashboard/inbox?connected=1")
 
 
 @router.post(ApiPaths.INGESTION_SCAN, response_model=ScanResult, summary="Scan mailbox for statements")

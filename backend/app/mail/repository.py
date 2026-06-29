@@ -15,14 +15,10 @@ class MailRepository:
         self._db = db
 
     def get_for_user(self, user_id: UUID) -> MailAccount | None:
-        return self._db.execute(
-            select(MailAccount).where(MailAccount.user_id == user_id)
-        ).scalar_one_or_none()
+        return self._db.execute(select(MailAccount).where(MailAccount.user_id == user_id)).scalar_one_or_none()
 
     def connected_user_ids(self) -> list[UUID]:
-        rows = self._db.execute(
-            select(MailAccount.user_id).where(MailAccount.status == "CONNECTED")
-        ).scalars().all()
+        rows = self._db.execute(select(MailAccount.user_id).where(MailAccount.status == "CONNECTED")).scalars().all()
         return list(rows)
 
     def upsert(self, user_id: UUID, **fields: object) -> MailAccount:
