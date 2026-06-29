@@ -44,6 +44,14 @@ yarn-error.log*
 *.sqlite
 *.sqlite3
 
+# ---- PII / user uploads (never publish) ----
+*.pdf
+uploads/
+statements_in/
+ingest/
+demo-creds.txt
+*.secret
+
 # ---- Logs / pager artifacts ----
 logs/
 *.log
