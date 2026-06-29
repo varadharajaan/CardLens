@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 
+from app.parsers.pdf import CardholderHints
 from app.parsers.schemas import ParsedStatement, ParsePreviewRequest
 from app.parsers.service import ParserService
 from app.shared.constants.api_paths import ApiPaths
@@ -35,3 +36,23 @@ def preview_statement(
     mandatory reward-parse status. An unrecognized layout returns 422.
     """
     return service.parse_text(body.bank, body.text)
+
+
+@router.post(
+    ApiPaths.PARSERS_PREVIEW_PDF,
+    response_model=ParsedStatement,
+    summary="Preview a parsed statement from an uploaded PDF",
+)
+async def preview_statement_pdf(
+    file: UploadFile = File(...),
+    bank: str | None = Form(default=None),
+    name: str | None = Form(default=None),
+    dob_ddmm: str | None = Form(default=None),
+    card_last4: str | None = Form(default=None),
+    user_id: UUID = Depends(get_current_user_id),
+    service: ParserService = Depends(get_parser_service),
+) -> ParsedStatement:
+    """Unlock and parse an uploaded PDF statement; returns 422 if it cannot be read or matched."""
+    content = await file.read()
+    hints = CardholderHints(name=name, dob_ddmm=dob_ddmm, card_last4=card_last4)
+    return service.parse_pdf(content, bank, hints)
