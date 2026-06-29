@@ -15,10 +15,10 @@ from app.shared.constants.api_paths import ApiPaths
 from app.shared.database.session import get_db
 from app.shared.security.deps import get_current_user_id
 
-router = APIRouter(prefix="/mail", tags=["mail"])
+router = APIRouter(tags=["mail"])
 
 
-@router.get("/account", response_model=MailAccountRead | None, summary="Connected mailbox status")
+@router.get(ApiPaths.MAIL_ACCOUNTS, response_model=MailAccountRead | None, summary="Connected mailbox status")
 def status(user_id: UUID = Depends(get_current_user_id), db: Session = Depends(get_db)) -> object:
     return MailRepository(db).get_for_user(user_id)
 

@@ -107,6 +107,7 @@ body {
 @keyframes shimmer { 100%{background-position:200% 0} }
 .light .text-white { color: #0f172a; }
 .light .text-slate-400, .light .text-slate-300, .light .text-slate-200, .light .text-slate-500, .light .text-muted { color: #475569; }
+.light .text-rose-200, .light .text-rose-300 { color: #9f1239; }
 .light .text-ink { color: #0f172a; }
 .light .nav-link { color: #475569; }
 .light .nav-link:hover { color: #0f172a; }

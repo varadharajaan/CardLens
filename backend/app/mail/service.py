@@ -57,7 +57,8 @@ class MailService:
     def scan(self, user_id: UUID) -> ScanResult:
         """Pull statement emails and ingest attachments. Dry-run ingests a sample statement."""
         if self.dry_run:
-            _, created = self._ingest.ingest_text(user_id, "HDFC", _SAMPLE)
+            sample = f"{_SAMPLE}\nDryRunUser: {user_id}\n"
+            _, created = self._ingest.ingest_text(user_id, "HDFC", sample)
             self._repo.upsert(user_id, last_scan_at=datetime.now(UTC), statements_found=1, status="CONNECTED")
             return ScanResult(scanned=1, statements_ingested=1 if created else 0, dry_run=True)
         # Live Gmail path uses the stored token to search bank senders and ingest PDF attachments.

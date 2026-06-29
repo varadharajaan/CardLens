@@ -19,6 +19,7 @@ from app.config import settings
 from app.dashboard.router import router as dashboard_router
 from app.health.router import router as health_router
 from app.mail.router import router as mail_router
+from app.mail.scheduler import register_mail_scheduler
 from app.parsers.router import router as parsers_router
 from app.registry.router import router as registry_router
 from app.shared.config.data_loader import get_data_loader
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     api.include_router(parsers_router)
     api.include_router(mail_router)
     app.include_router(api)
+    register_mail_scheduler(app)
 
     logger.info(
         "app.created",
