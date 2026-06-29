@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth";
 
@@ -98,10 +99,11 @@ export default function LoginPage() {
             type="button"
             onClick={useDemo}
             disabled={busy}
-            className="mt-3 w-full rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-white/5 hover:text-ink disabled:opacity-50"
+            className="mt-3 w-full rounded-2xl border border-white/10 px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
           >
             Use the demo account
           </button>
+          <p className="mt-4 text-center text-sm text-slate-400">New to CardLens? <Link href="/signup" className="font-medium text-violet-300 hover:text-violet-200">Create an account</Link></p>
         </div>
       </div>
     </div>
