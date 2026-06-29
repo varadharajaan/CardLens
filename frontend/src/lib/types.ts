@@ -122,6 +122,22 @@ export interface BankAccountDetail {
   debit_cards: DebitCard[];
 }
 
+export interface ParsedStatement {
+  bank: string;
+  profile_version: number;
+  card_name: string | null;
+  last4: string | null;
+  statement_date: string | null;
+  due_date: string | null;
+  total_due: number | null;
+  minimum_due: number | null;
+  reward_points_closing: number | null;
+  reward_type: string | null;
+  reward_parse_status: string;
+  parse_confidence: number;
+  evidence_snippet: string | null;
+}
+
 export interface Statement {
   id: string;
   card_id: string | null;
