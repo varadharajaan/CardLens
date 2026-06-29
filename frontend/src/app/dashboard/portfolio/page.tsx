@@ -15,14 +15,14 @@ import type { Card, CardAccount, Page } from "@/lib/types";
 
 function VariantRow({ card }: { card: Card }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-line bg-panel2/60 px-3.5 py-2.5">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-ink">{card.card_name}</span>
+    <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+      <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+        <span className="min-w-0 text-sm font-semibold leading-5 text-white">{card.card_name}</span>
         {card.is_primary ? <Badge tone="brand">primary</Badge> : null}
         <NetworkChip network={card.network} />
       </div>
-      <div className="flex items-center gap-3">
-        <span className="font-mono text-xs text-muted">****{card.last4}</span>
+      <div className="flex min-w-0 flex-wrap items-center gap-2.5 sm:justify-end">
+        <span className="font-mono text-xs font-semibold text-slate-400">****{card.last4}</span>
         {card.reward_format ? <Badge tone="muted">{card.reward_format}</Badge> : null}
       </div>
     </div>
@@ -61,14 +61,14 @@ export default function PortfolioPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-ink">{acc.display_name}</span>
+                      <span className="font-semibold text-white">{acc.display_name}</span>
                       <StatusChip status={acc.status} />
                     </div>
-                    <span className="text-xs text-muted">{acc.bank}</span>
+                    <span className="text-xs text-slate-400">{acc.bank}</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-muted">Credit limit</div>
-                    <div className="text-sm font-medium text-ink">
+                    <div className="text-xs text-slate-400">Credit limit</div>
+                    <div className="text-sm font-semibold text-white">
                       {formatMoney(acc.credit_limit)}
                     </div>
                   </div>
@@ -93,12 +93,12 @@ export default function PortfolioPage() {
             {standalone.map((c) => (
               <div key={c.id} className="card flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium text-ink">{c.card_name}</span>
+                  <span className="font-medium text-white">{c.card_name}</span>
                   <StatusChip status={c.status} />
                 </div>
-                <span className="text-xs text-muted">{c.bank}</span>
+                <span className="text-xs text-slate-400">{c.bank}</span>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs text-muted">****{c.last4}</span>
+                  <span className="font-mono text-xs text-slate-400">****{c.last4}</span>
                   <NetworkChip network={c.network} />
                 </div>
               </div>
