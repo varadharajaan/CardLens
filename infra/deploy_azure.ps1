@@ -18,6 +18,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$env:PYTHONUTF8 = '1'
+try { chcp 65001 | Out-Null } catch {}
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 
 Write-Host '[deploy] ensuring containerapp extension...'
