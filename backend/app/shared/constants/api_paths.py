@@ -35,6 +35,7 @@ class ApiPaths:
     # Domain
     STATEMENTS = "/statements"
     PARSERS_PREVIEW = "/parsers/preview"
+    PARSERS_PREVIEW_PDF = "/parsers/preview-pdf"
     CARDS = "/cards"
     CARD_ACCOUNTS = "/card-accounts"
     BANK_ACCOUNTS = "/bank-accounts"
