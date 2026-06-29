@@ -12,6 +12,23 @@ optimizing, and alerting.
 - Match detected cards against a versioned JSON card-feature registry.
 - Track milestones, detect fee/charge anomalies, and estimate reward leakage.
 
+## Product Screens
+
+The screenshots below are generated from the local demo dataset only; no personal Gmail, card, PDF, or
+credential data is included.
+
+| Dashboard overview | Card portfolio |
+|---|---|
+| ![CardLens dashboard overview](docs/screenshots/01-dashboard-overview.png) | ![CardLens card portfolio](docs/screenshots/02-card-portfolio.png) |
+
+| Statements | Gmail onboarding |
+|---|---|
+| ![CardLens statements screen](docs/screenshots/03-statements.png) | ![CardLens Gmail onboarding](docs/screenshots/04-gmail-onboarding.png) |
+
+| Upload statement | Intelligence Suite |
+|---|---|
+| ![CardLens upload statement parser](docs/screenshots/05-upload-statement.png) | ![CardLens Intelligence Suite](docs/screenshots/06-intelligence-suite.png) |
+
 ## 2. Architecture
 
 CardLens is a modular monolith (one FastAPI backend, strict `router -> service -> repository`
