@@ -7,6 +7,8 @@ field extraction is the profile engine's job, so the source of truth stays confi
 
 from __future__ import annotations
 
+import io
+
 from app.config import settings
 from app.shared.logging.context import get_logger
 
@@ -34,6 +36,6 @@ class DocumentIntelligence:
         from azure.core.credentials import AzureKeyCredential
 
         client = DocumentIntelligenceClient(self._endpoint, AzureKeyCredential(self._key))
-        poller = client.begin_analyze_document("prebuilt-read", body=content)
+        poller = client.begin_analyze_document("prebuilt-read", body=io.BytesIO(content))
         result = poller.result()
         return result.content or ""

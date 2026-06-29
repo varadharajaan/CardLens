@@ -66,6 +66,7 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
     google_redirect_uri: str = "http://localhost:8000/api/v1/mail/accounts/callback"
+    gmail_scan_lookback_hours: int = 24
 
     # --- Azure ---
     azure_blob_connection_string: str = ""

@@ -13,6 +13,7 @@ from typing import Protocol
 
 
 class _MatchCandidate(Protocol):
+    key: str
     bank: str
     card_name: str
 
