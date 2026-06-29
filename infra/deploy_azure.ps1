@@ -28,25 +28,20 @@ az provider register -n Microsoft.OperationalInsights --wait | Out-Null
 Write-Host "[deploy] resource group $ResourceGroup in $Location"
 az group create -n $ResourceGroup -l $Location --only-show-errors | Out-Null
 
-Write-Host '[deploy] backend (build in cloud, scale-to-zero)...'
-az containerapp up `
-    --name cardlens-api --resource-group $ResourceGroup --location $Location --environment $Env `
-    --source "$RepoRoot" --dockerfile 'infra/backend.Dockerfile' `
-    --ingress external --target-port 8000 --min-replicas 0 --only-show-errors
+Write-Host '[deploy] backend (cloud build, a few minutes)...'
+az containerapp up --name cardlens-api --resource-group $ResourceGroup --location $Location `
+    --environment $Env --source "$RepoRoot" --ingress external --target-port 8000
+az containerapp update -n cardlens-api -g $ResourceGroup --min-replicas 0 --max-replicas 2 --only-show-errors | Out-Null
 $api = az containerapp show -n cardlens-api -g $ResourceGroup --query properties.configuration.ingress.fqdn -o tsv
-Write-Host "[deploy] backend live: https://$api"
 
-Write-Host '[deploy] frontend (built against the live API)...'
-az containerapp up `
-    --name cardlens-web --resource-group $ResourceGroup --location $Location --environment $Env `
-    --source "$RepoRoot\frontend" --dockerfile 'Dockerfile' `
-    --build-env-vars "NEXT_PUBLIC_API_BASE=https://$api" `
-    --ingress external --target-port 3000 --min-replicas 0 --only-show-errors
-$web = az containerapp show -n cardlens-web -g $ResourceGroup --query properties.configuration.ingress.fqdn -o tsv
-
+$ok = $false
+for ($i = 0; $i -lt 30; $i++) {
+    Start-Sleep -Seconds 4
+    try { if ((Invoke-RestMethod "https://$api/healthz" -TimeoutSec 6).status -eq 'ok') { $ok = $true; break } } catch {}
+}
 Write-Host ''
 Write-Host '================ CardLens PROD ================'
 Write-Host "API: https://$api/healthz   docs: https://$api/docs"
-Write-Host "Web: https://$web"
+Write-Host ("Health: {0}" -f $(if ($ok) { 'OK' } else { 'not-ready' }))
 Write-Host 'Teardown: infra/teardown_azure.ps1'
 Write-Host '=============================================='
