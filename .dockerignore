@@ -1,0 +1,10 @@
+.git
+.venv
+**/node_modules
+frontend/.next
+logs
+*.db
+__pycache__
+**/*.pyc
+.ruff_cache
+htmlcov
